@@ -11,74 +11,53 @@
   :root {
     --bg: #0f0f1a; --card: #1a1a2e; --card2: #16213e;
     --accent: #4361ee; --accent2: #3f8efc; --green: #2ecc71;
-    --red: #e74c3c; --text: #e8e8f0; --text2: #8888aa;
+    --text: #e8e8f0; --text2: #8888aa; --red: #e74c3c;
     --border: #2a2a4a; --radius: 12px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; padding-bottom: 60px; }
 
-  header {
-    background: linear-gradient(135deg, var(--card2), var(--card));
-    padding: 16px; border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 100;
-  }
+  header { margin-bottom: 16px; }
   header h1 { font-size: 18px; font-weight: 700; }
+  header p { font-size: 11px; color: var(--text2); margin-top: 2px; }
 
-  .tabs { display: flex; gap: 6px; margin-top: 10px; }
-  .tabs button {
-    flex: 1; padding: 10px 0; border-radius: 20px; font-size: 13px;
-    font-weight: 600; cursor: pointer; white-space: nowrap; border: 1px solid var(--border);
-    background: var(--bg); color: var(--text2); font-family: inherit;
-    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-  }
-  .tabs button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .card h3 { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; }
 
-  .section { display: none; padding: 16px; padding-bottom: 100px; }
-  .section.active { display: block; }
-
-  .card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
-  }
-  .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
-
-  .q-item {
-    padding: 12px 0; border-bottom: 1px solid var(--border);
+  .q {
+    padding: 10px 0; border-bottom: 1px solid var(--border);
     font-size: 13px; line-height: 1.5;
   }
-  .q-item:last-child { border-bottom: none; }
-  .q-item .q { font-weight: 500; color: var(--text); }
-  .q-item .hint { font-size: 11px; color: var(--accent2); margin-top: 3px; }
+  .q:last-child { border-bottom: none; }
+  .q .num { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  .q .text { font-weight: 500; }
+  .q .hint { font-size: 11px; color: var(--accent2); margin-top: 3px; font-style: italic; }
 
-  label { display: block; font-size: 12px; color: var(--text2); margin: 10px 0 4px; font-weight: 500; }
-  input, select {
-    width: 100%; padding: 10px 12px; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--bg);
-    color: var(--text); font-family: inherit; font-size: 14px;
-  }
-  input:focus, select:focus { outline: none; border-color: var(--accent); }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-  .proceso {
+  .calc-block {
     background: var(--card2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
-    border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 12px; margin-top: 8px;
   }
-  .proceso-head {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 13px; font-weight: 600; margin-bottom: 8px;
+  .calc-block label { display: block; font-size: 11px; color: var(--text2); margin: 6px 0 3px; font-weight: 500; }
+  .calc-block label:first-child { margin-top: 0; }
+  .calc-block input, .calc-block select {
+    width: 100%; padding: 8px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text); font-family: inherit; font-size: 13px;
   }
-  .proceso-head button {
-    background: none; border: none; color: var(--red); font-size: 20px;
-    cursor: pointer; padding: 0; width: 28px; font-family: inherit;
+  .calc-block input:focus, .calc-block select:focus { outline: none; border-color: var(--accent); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+  .add-btn {
+    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--accent);
+    background: transparent; color: var(--accent); font-family: inherit;
+    font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px;
+    touch-action: manipulation;
   }
 
-  .btn {
-    width: 100%; padding: 12px; border-radius: 8px; border: none;
-    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-    margin-top: 8px; touch-action: manipulation;
+  .del-btn {
+    background: none; border: none; color: var(--red); font-size: 16px;
+    cursor: pointer; padding: 0; float: right; font-family: inherit;
   }
-  .btn-add { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
 
   .result {
     background: linear-gradient(135deg, #1a1a3e, #16213e);
@@ -86,99 +65,93 @@
     padding: 20px; text-align: center; margin-bottom: 12px;
   }
   .result .lbl { font-size: 11px; color: var(--text2); text-transform: uppercase; }
-  .result .big { font-size: 38px; font-weight: 700; color: var(--accent2); margin: 6px 0; }
+  .result .big { font-size: 36px; font-weight: 700; color: var(--accent2); margin: 6px 0; }
   .result .sub { font-size: 13px; color: var(--green); font-weight: 500; }
 
-  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-  .kpi {
-    background: var(--card2); border-radius: var(--radius); padding: 14px;
-    text-align: center; border: 1px solid var(--border);
-  }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .kpi { background: var(--card2); border-radius: var(--radius); padding: 12px; text-align: center; border: 1px solid var(--border); }
   .kpi .v { font-size: 20px; font-weight: 700; }
-  .kpi .l { font-size: 10px; color: var(--text2); margin-top: 4px; }
+  .kpi .l { font-size: 10px; color: var(--text2); margin-top: 3px; }
 
   .pitch {
     background: var(--card); border: 1px solid var(--green); border-radius: var(--radius);
-    padding: 14px; font-size: 12px; line-height: 1.6; color: var(--text2);
+    padding: 14px; font-size: 12px; line-height: 1.7; color: var(--text2);
   }
   .pitch strong { color: var(--green); }
+
+  #results { display: none; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>⚡ Nexo</h1>
-  <div class="tabs" id="tabs">
-    <button type="button" class="tab active" data-t="preguntas">🎯 Preguntas</button>
-    <button type="button" class="tab" data-t="calc">🧮 Calculadora</button>
-  </div>
+  <h1>⚡ Nexo — Auditoría</h1>
+  <p>Encuentra el dolor. Calcula el precio.</p>
 </header>
 
-<!-- PREGUNTAS -->
-<div class="section active" id="sec-preguntas">
-  <div class="card">
-    <h3>🔍 Detectar fugas de tiempo</h3>
-    <div class="q-item">
-      <div class="q">¿Qué tareas repetís cada semana sin falta?</div>
-      <div class="hint">→ Busca lo que hacen "porque siempre se ha hecho así"</div>
-    </div>
-    <div class="q-item">
-      <div class="q">Si pudieras eliminar una tarea de tu semana, ¿cuál sería?</div>
-      <div class="hint">→ Esta es la que más duele. Ahí está el dinero</div>
-    </div>
-    <div class="q-item">
-      <div class="q">¿Hay algo que deberíais hacer pero no hacéis por falta de tiempo?</div>
-      <div class="hint">→ Revela necesidades no cubiertas = oportunidad</div>
-    </div>
-    <div class="q-item">
-      <div class="q">¿Tenéis algún Excel que actualicéis a mano cada semana?</div>
-      <div class="hint">→ Excel manual = automatización inmediata</div>
-    </div>
+<!-- PREGUNTAS PARA DETECTAR -->
+<div class="card">
+  <h3>🔍 Encontrar las fugas</h3>
+
+  <div class="q">
+    <span class="num">1.</span>
+    <span class="text">¿Qué tareas repetís cada semana sin falta?</span>
+    <div class="hint">→ Busca lo que hacen "porque siempre se ha hecho así"</div>
   </div>
-  <div class="card">
-    <h3>💸 Detectar coste oculto</h3>
-    <div class="q-item">
-      <div class="q">¿Cómo le mandáis la información a la gestoría?</div>
-      <div class="hint">→ Si es manual, hay un proceso que automatizar</div>
-    </div>
-    <div class="q-item">
-      <div class="q">¿Alguien revisa las facturas antes de pagarlas?</div>
-      <div class="hint">→ Si no → errores. Si sí → horas perdidas</div>
-    </div>
-    <div class="q-item">
-      <div class="q">¿Cómo sabéis si un proveedor os ha subido el precio?</div>
-      <div class="hint">→ Si no lo saben, están perdiendo dinero sin saberlo</div>
-    </div>
-    <div class="q-item">
-      <div class="q">¿Os han puesto alguna multa o penalización por retraso?</div>
-      <div class="hint">→ Coste directo por no automatizar</div>
-    </div>
+
+  <div class="q">
+    <span class="num">2.</span>
+    <span class="text">Si pudieras eliminar una tarea de tu semana, ¿cuál sería?</span>
+    <div class="hint">→ La que más duele. Ahí está el dinero</div>
   </div>
-  <div class="card">
-    <h3>🎣 Preguntas de cierre</h3>
-    <div class="q-item">
-      <div class="q">¿Cuántas horas a la semana le dedicáis a eso?</div>
-      <div class="hint">→ CLAVE: este número × coste/hora = tu precio</div>
-    </div>
-    <div class="q-item">
-      <div class="q">¿Quién lo hace? ¿Un empleado o tú mismo?</div>
-      <div class="hint">→ Empleado = coste real medible. Dueño = coste de oportunidad</div>
-    </div>
-    <div class="q-item">
-      <div class="q">¿Cada cuánto? ¿Diario, semanal, mensual?</div>
-      <div class="hint">→ Para calcular horas/mes en la calculadora</div>
-    </div>
+
+  <div class="q">
+    <span class="num">3.</span>
+    <span class="text">¿Hay algo que deberíais hacer pero no hacéis por falta de tiempo?</span>
+    <div class="hint">→ Necesidades no cubiertas = oportunidad</div>
+  </div>
+
+  <div class="q">
+    <span class="num">4.</span>
+    <span class="text">¿Recibís informes, facturas o datos por email que luego alguien reordena o pasa a otro formato?</span>
+    <div class="hint">→ Datos que YA son digitales pero se mueven a mano = automatización directa</div>
+  </div>
+
+  <div class="q">
+    <span class="num">5.</span>
+    <span class="text">¿Cómo le mandáis la información a la gestoría?</span>
+    <div class="hint">→ Si es manual, hay un proceso que automatizar</div>
+  </div>
+
+  <div class="q">
+    <span class="num">6.</span>
+    <span class="text">¿Alguien revisa las facturas antes de pagarlas?</span>
+    <div class="hint">→ Si no: errores. Si sí: horas perdidas</div>
+  </div>
+
+  <div class="q">
+    <span class="num">7.</span>
+    <span class="text">¿Cómo sabéis si un proveedor os ha subido el precio?</span>
+    <div class="hint">→ Si no lo saben, están perdiendo dinero sin saberlo</div>
   </div>
 </div>
 
-<!-- CALCULADORA -->
-<div class="section" id="sec-calc">
-  <div class="card">
-    <h3>📊 Procesos que el cliente pierde tiempo</h3>
-    <div id="procs"></div>
-    <button type="button" class="btn btn-add" onclick="addProc()">+ Añadir proceso</button>
+<!-- CALCULADORA INLINE -->
+<div class="card">
+  <h3>🧮 Calcular el ahorro</h3>
+
+  <div class="q" style="border-bottom:none;">
+    <span class="num">8.</span>
+    <span class="text">De lo que hemos hablado, ¿qué tareas os llevan más tiempo?</span>
+    <div class="hint">→ Añade cada tarea con sus datos para calcular el precio</div>
   </div>
 
+  <div id="tareas"></div>
+  <button type="button" class="add-btn" onclick="addTarea()">+ Añadir tarea</button>
+</div>
+
+<!-- RESULTADO -->
+<div id="results">
   <div class="result">
     <div class="lbl">Cuota mensual recomendada</div>
     <div class="big" id="cuota">—</div>
@@ -187,86 +160,70 @@
 
   <div class="kpis">
     <div class="kpi"><div class="v" id="k-horas">0</div><div class="l">Horas/mes recuperadas</div></div>
-    <div class="kpi"><div class="v" id="k-coste">0€</div><div class="l">Coste actual cliente</div></div>
+    <div class="kpi"><div class="v" id="k-coste">0€</div><div class="l">Coste actual</div></div>
     <div class="kpi"><div class="v" id="k-setup">0€</div><div class="l">Setup estimado</div></div>
-    <div class="kpi"><div class="v" id="k-roi">0x</div><div class="l">ROI del cliente</div></div>
+    <div class="kpi"><div class="v" id="k-roi">0x</div><div class="l">ROI cliente</div></div>
   </div>
 
-  <div class="pitch" id="pitch" style="display:none;">
+  <div class="pitch" id="pitch">
     <strong>💬 Tu pitch:</strong><br>
     <span id="pitch-text"></span>
   </div>
 </div>
 
 <script>
-// Tabs
-document.getElementById('tabs').addEventListener('click', function(e) {
-  const t = e.target.closest('.tab');
-  if (!t) return;
-  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-  document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
-  t.classList.add('active');
-  document.getElementById('sec-' + t.dataset.t).classList.add('active');
-});
+let tareas = [], tid = 0;
 
-// Procesos
-let procs = [];
-let pid = 0;
-
-function addProc() {
-  pid++;
-  procs.push({ id: pid });
+function addTarea() {
+  tid++;
+  tareas.push({ id: tid });
   render();
 }
 
-function delProc(id) {
-  procs = procs.filter(p => p.id !== id);
-  render();
-  calc();
+function delTarea(id) {
+  tareas = tareas.filter(t => t.id !== id);
+  render(); calc();
 }
 
 function render() {
-  const el = document.getElementById('procs');
-  if (!procs.length) { el.innerHTML = ''; return; }
-  el.innerHTML = procs.map((p, i) => `
-    <div class="proceso">
-      <div class="proceso-head">Tarea ${i + 1} <button type="button" onclick="delProc(${p.id})">×</button></div>
-      <label>¿Qué tarea es?</label>
-      <input type="text" placeholder="Ej: Clasificar facturas" data-id="${p.id}" data-f="nombre" oninput="upd(this)">
-      <div class="row">
-        <div><label>Horas/semana</label><input type="number" step="0.5" placeholder="3" data-id="${p.id}" data-f="horas" oninput="upd(this);calc()"></div>
-        <div><label>Coste/hora €</label><input type="number" placeholder="14" data-id="${p.id}" data-f="coste" oninput="upd(this);calc()"></div>
+  const el = document.getElementById('tareas');
+  el.innerHTML = tareas.map((t, i) => `
+    <div class="calc-block" style="margin-bottom:8px;">
+      <button type="button" class="del-btn" onclick="delTarea(${t.id})">×</button>
+      <label>Tarea ${i + 1}</label>
+      <input type="text" placeholder="Ej: Clasificar facturas de proveedores" data-id="${t.id}" data-f="nombre" oninput="upd(this)">
+      <div class="row2">
+        <div><label>Horas/semana</label><input type="number" step="0.5" placeholder="3" data-id="${t.id}" data-f="horas" oninput="upd(this);calc()"></div>
+        <div><label>€/hora de quien lo hace</label><input type="number" placeholder="14" data-id="${t.id}" data-f="coste" oninput="upd(this);calc()"></div>
       </div>
       <label>Frecuencia</label>
-      <select data-id="${p.id}" data-f="freq" onchange="upd(this);calc()">
+      <select data-id="${t.id}" data-f="freq" onchange="upd(this);calc()">
         <option value="semanal">Semanal</option>
         <option value="diario">Diario</option>
         <option value="mensual">Mensual</option>
       </select>
     </div>
   `).join('');
-  // Restore values
-  procs.forEach(p => {
-    document.querySelectorAll(`[data-id="${p.id}"]`).forEach(el => {
-      if (p[el.dataset.f] !== undefined) el.value = p[el.dataset.f];
+  tareas.forEach(t => {
+    document.querySelectorAll(`[data-id="${t.id}"]`).forEach(el => {
+      if (t[el.dataset.f] !== undefined) el.value = t[el.dataset.f];
     });
   });
 }
 
 function upd(el) {
-  const p = procs.find(p => p.id === parseInt(el.dataset.id));
-  if (p) p[el.dataset.f] = el.value;
+  const t = tareas.find(t => t.id === parseInt(el.dataset.id));
+  if (t) t[el.dataset.f] = el.value;
 }
 
 function calc() {
   let totalH = 0, totalC = 0;
-  procs.forEach(p => {
-    const h = parseFloat(p.horas) || 0;
-    const c = parseFloat(p.coste) || 14;
-    const f = p.freq || 'semanal';
+  tareas.forEach(t => {
+    const h = parseFloat(t.horas) || 0;
+    const c = parseFloat(t.coste) || 14;
+    const f = t.freq || 'semanal';
     let hm = f === 'semanal' ? h * 4.33 : f === 'diario' ? h * 22 : h;
-    totalH += hm;
-    totalC += hm * c;
+    totalH += hm; totalC += hm * c;
   });
 
   const raw = totalC * 0.33;
@@ -276,27 +233,22 @@ function calc() {
 
   const ahorro = totalC - cuota;
   const roi = cuota > 0 ? (totalC / cuota).toFixed(1) : 0;
-  const setup = Math.round(totalH * 12); // ~12€ por hora ahorrada como setup
+  const setup = Math.round(totalH * 12);
 
-  document.getElementById('cuota').textContent = totalC > 0 ? cuota + '€/mes' : '—';
-  document.getElementById('ahorro').textContent = ahorro > 0 ? 'El cliente ahorra ' + Math.round(ahorro) + '€/mes' : '';
+  const res = document.getElementById('results');
+  res.style.display = totalC > 0 ? 'block' : 'none';
+
+  document.getElementById('cuota').textContent = cuota + '€/mes';
+  document.getElementById('ahorro').textContent = 'El cliente ahorra ' + Math.round(ahorro) + '€/mes';
   document.getElementById('k-horas').textContent = Math.round(totalH * 10) / 10;
   document.getElementById('k-coste').textContent = Math.round(totalC) + '€';
   document.getElementById('k-setup').textContent = setup + '€';
   document.getElementById('k-roi').textContent = roi + 'x';
-
-  // Pitch
-  const pitchEl = document.getElementById('pitch');
-  const pitchTxt = document.getElementById('pitch-text');
-  if (totalC > 0) {
-    pitchEl.style.display = 'block';
-    pitchTxt.innerHTML = `"Esto que hacéis a mano os cuesta <strong>${Math.round(totalC)}€/mes</strong> en tiempo. Yo os lo automatizo por <strong>${cuota}€/mes</strong>. Os ahorráis <strong>${Math.round(ahorro)}€</strong> y recuperáis <strong>${Math.round(totalH)} horas</strong> cada mes."`;
-  } else {
-    pitchEl.style.display = 'none';
-  }
+  document.getElementById('pitch-text').innerHTML =
+    `"Esto que hacéis a mano os cuesta <strong>${Math.round(totalC)}€/mes</strong> en tiempo. ` +
+    `Yo os lo automatizo por <strong>${cuota}€/mes</strong>. ` +
+    `Os ahorráis <strong>${Math.round(ahorro)}€</strong> y recuperáis <strong>${Math.round(totalH)} horas</strong> cada mes."`;
 }
-
-addProc();
 </script>
 </body>
 </html>
