@@ -232,7 +232,7 @@ function calc() {
   const raw = totalC * 0.33;
   const tramos = [99, 149, 199, 249, 299, 399, 499];
   let cuota = tramos.find(t => t >= raw) || Math.ceil(raw / 50) * 50;
-  if (cuota < 99 && totalC > 0) cuota = 99;
+  const noCompensa = raw < 99 && totalC > 0;
 
   const ahorro = totalC - cuota;
   const roi = cuota > 0 ? (totalC / cuota).toFixed(1) : 0;
@@ -241,12 +241,17 @@ function calc() {
   const res = document.getElementById('results');
   res.style.display = totalC > 0 ? 'block' : 'none';
 
-  document.getElementById('cuota').textContent = cuota + '€/mes';
-  document.getElementById('ahorro').textContent = 'El cliente ahorra ' + Math.round(ahorro) + '€/mes';
+  document.getElementById('cuota').textContent = noCompensa ? '⛔' : cuota + '€/mes';
+  document.getElementById('cuota').style.color = noCompensa ? 'var(--red)' : 'var(--accent2)';
+  document.getElementById('ahorro').textContent = noCompensa
+    ? 'El 33% del ahorro (' + Math.round(raw) + '€) no llega a tu mínimo (99€)'
+    : 'El cliente ahorra ' + Math.round(ahorro) + '€/mes';
+  document.getElementById('ahorro').style.color = noCompensa ? 'var(--red)' : 'var(--green)';
   document.getElementById('k-horas').textContent = Math.round(totalH * 10) / 10;
   document.getElementById('k-coste').textContent = Math.round(totalC) + '€';
-  document.getElementById('k-setup').textContent = setup + '€';
-  document.getElementById('k-roi').textContent = roi + 'x';
+  document.getElementById('k-setup').textContent = noCompensa ? '—' : setup + '€';
+  document.getElementById('k-roi').textContent = noCompensa ? '—' : roi + 'x';
+
   // Build pitch with breakdown
   let desglose = '';
   tareas.forEach(t => {
@@ -262,12 +267,25 @@ function calc() {
     desglose += `<br>• ${nombre}: ${h}h/${f === 'diario' ? 'día' : f === 'mensual' ? 'mes' : 'semana'} ${freqTxt} = <strong>${hm}h/mes × ${c}€ = ${cm}€</strong>`;
   });
 
-  document.getElementById('pitch-text').innerHTML =
-    `<em>Desglose:</em>${desglose}` +
-    `<br><br>"En total dedicáis <strong>${Math.round(totalH)} horas/mes</strong> a estas tareas. ` +
-    `Eso os cuesta <strong>${Math.round(totalC)}€/mes</strong> en tiempo de trabajo. ` +
-    `Yo os lo automatizo por <strong>${cuota}€/mes</strong>. ` +
-    `Os ahorráis <strong>${Math.round(ahorro)}€</strong> y recuperáis esas <strong>${Math.round(totalH)} horas</strong> cada mes."`;
+  const pitchEl = document.getElementById('pitch');
+  if (noCompensa) {
+    pitchEl.style.borderColor = 'var(--red)';
+    document.getElementById('pitch-text').innerHTML =
+      `<em>Desglose:</em>${desglose}` +
+      `<br><br><strong style="color:var(--red)">⛔ No compensa.</strong> ` +
+      `El ahorro total es ${Math.round(totalC)}€/mes. El 33% son ${Math.round(raw)}€, por debajo de tu mínimo de 99€.` +
+      `<br><br>Opciones:<br>` +
+      `• Busca más tareas para sumar ahorro<br>` +
+      `• Rechaza con honestidad`;
+  } else {
+    pitchEl.style.borderColor = 'var(--green)';
+    document.getElementById('pitch-text').innerHTML =
+      `<em>Desglose:</em>${desglose}` +
+      `<br><br>💬 "En total dedicáis <strong>${Math.round(totalH)} horas/mes</strong> a estas tareas. ` +
+      `Eso os cuesta <strong>${Math.round(totalC)}€/mes</strong> en tiempo de trabajo. ` +
+      `Yo os lo automatizo por <strong>${cuota}€/mes</strong>. ` +
+      `Os ahorráis <strong>${Math.round(ahorro)}€</strong> y recuperáis esas <strong>${Math.round(totalH)} horas</strong> cada mes."`;
+  }
 }
 </script>
 </body>
