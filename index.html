@@ -196,6 +196,9 @@ function render() {
         <div><label>Horas/semana</label><input type="number" step="0.5" placeholder="3" data-id="${t.id}" data-f="horas" oninput="upd(this);calc()"></div>
         <div><label>€/hora de quien lo hace</label><input type="number" placeholder="14" data-id="${t.id}" data-f="coste" oninput="upd(this);calc()"></div>
       </div>
+      <div style="font-size:10px;color:var(--text2);margin-top:5px;line-height:1.6;">
+        📌 Empleado base: 10-14€ · Cualificado: 14-20€ · Dueño: 20-35€ · Gestor externo: 30-60€
+      </div>
       <label>Frecuencia</label>
       <select data-id="${t.id}" data-f="freq" onchange="upd(this);calc()">
         <option value="semanal">Semanal</option>
