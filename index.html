@@ -59,6 +59,19 @@
     cursor: pointer; padding: 0; float: right; font-family: inherit;
   }
 
+  .spin { display: flex; align-items: center; gap: 0; }
+  .spin input { text-align: center; border-radius: 0; -moz-appearance: textfield; }
+  .spin input::-webkit-inner-spin-button, .spin input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .spin-btn {
+    width: 38px; height: 38px; border: 1px solid var(--border); background: var(--card2);
+    color: var(--accent2); font-size: 18px; font-weight: 700; cursor: pointer;
+    font-family: inherit; touch-action: manipulation; display: flex;
+    align-items: center; justify-content: center;
+  }
+  .spin-btn:first-child { border-radius: 8px 0 0 8px; }
+  .spin-btn:last-child { border-radius: 0 8px 8px 0; }
+  .spin-btn:active { background: var(--accent); color: white; }
+
   .result {
     background: linear-gradient(135deg, #1a1a3e, #16213e);
     border: 1px solid var(--accent); border-radius: var(--radius);
@@ -193,8 +206,20 @@ function render() {
       <label>Tarea ${i + 1}</label>
       <input type="text" placeholder="Ej: Clasificar facturas de proveedores" data-id="${t.id}" data-f="nombre" oninput="upd(this)">
       <div class="row2">
-        <div><label>Horas/semana</label><input type="number" step="0.5" placeholder="3" data-id="${t.id}" data-f="horas" oninput="upd(this);calc()"></div>
-        <div><label>€/hora de quien lo hace</label><input type="number" placeholder="14" data-id="${t.id}" data-f="coste" oninput="upd(this);calc()"></div>
+        <div><label>Horas/semana</label>
+          <div class="spin">
+            <button type="button" class="spin-btn" onclick="spin(${t.id},'horas',-0.5)">−</button>
+            <input type="number" step="0.5" placeholder="3" data-id="${t.id}" data-f="horas" oninput="upd(this);calc()">
+            <button type="button" class="spin-btn" onclick="spin(${t.id},'horas',0.5)">+</button>
+          </div>
+        </div>
+        <div><label>€/hora</label>
+          <div class="spin">
+            <button type="button" class="spin-btn" onclick="spin(${t.id},'coste',-1)">−</button>
+            <input type="number" placeholder="14" data-id="${t.id}" data-f="coste" oninput="upd(this);calc()">
+            <button type="button" class="spin-btn" onclick="spin(${t.id},'coste',1)">+</button>
+          </div>
+        </div>
       </div>
       <div style="font-size:10px;color:var(--text2);margin-top:5px;line-height:1.6;">
         📌 Empleado base: 10-14€ · Cualificado: 14-20€ · Dueño: 20-35€ · Gestor externo: 30-60€
@@ -217,6 +242,17 @@ function render() {
 function upd(el) {
   const t = tareas.find(t => t.id === parseInt(el.dataset.id));
   if (t) t[el.dataset.f] = el.value;
+}
+
+function spin(id, field, delta) {
+  const t = tareas.find(t => t.id === id);
+  if (!t) return;
+  const cur = parseFloat(t[field]) || 0;
+  const val = Math.max(0, cur + delta);
+  t[field] = val;
+  const inp = document.querySelector(`[data-id="${id}"][data-f="${field}"]`);
+  if (inp) inp.value = val;
+  calc();
 }
 
 function calc() {
