@@ -210,7 +210,7 @@ function render() {
     <div class="calc-block" style="margin-bottom:8px;">
       <button type="button" class="del-btn" onclick="delTarea(${t.id})">×</button>
       <label>Tarea ${i + 1}</label>
-      <input type="text" placeholder="Ej: Clasificar facturas de proveedores" data-id="${t.id}" data-f="nombre" oninput="upd(this)">
+      <input type="text" placeholder="Ej: Clasificar facturas de proveedores" data-id="${t.id}" data-f="nombre" oninput="upd(this);calc()">
       <div class="row2">
         <div><label>Horas/semana</label>
           <div class="spin">
