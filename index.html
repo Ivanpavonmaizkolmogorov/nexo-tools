@@ -247,10 +247,27 @@ function calc() {
   document.getElementById('k-coste').textContent = Math.round(totalC) + '€';
   document.getElementById('k-setup').textContent = setup + '€';
   document.getElementById('k-roi').textContent = roi + 'x';
+  // Build pitch with breakdown
+  let desglose = '';
+  tareas.forEach(t => {
+    if (!t.horas) return;
+    const h = parseFloat(t.horas) || 0;
+    const c = parseFloat(t.coste) || 14;
+    const f = t.freq || 'semanal';
+    const mult = f === 'semanal' ? 4.33 : f === 'diario' ? 22 : 1;
+    const freqTxt = f === 'semanal' ? '×4 semanas' : f === 'diario' ? '×22 días' : '';
+    const hm = Math.round(h * mult);
+    const cm = Math.round(hm * c);
+    const nombre = t.nombre || 'Tarea';
+    desglose += `<br>• ${nombre}: ${h}h/${f === 'diario' ? 'día' : f === 'mensual' ? 'mes' : 'semana'} ${freqTxt} = <strong>${hm}h/mes × ${c}€ = ${cm}€</strong>`;
+  });
+
   document.getElementById('pitch-text').innerHTML =
-    `"Esto que hacéis a mano os cuesta <strong>${Math.round(totalC)}€/mes</strong> en tiempo. ` +
+    `<em>Desglose:</em>${desglose}` +
+    `<br><br>"En total dedicáis <strong>${Math.round(totalH)} horas/mes</strong> a estas tareas. ` +
+    `Eso os cuesta <strong>${Math.round(totalC)}€/mes</strong> en tiempo de trabajo. ` +
     `Yo os lo automatizo por <strong>${cuota}€/mes</strong>. ` +
-    `Os ahorráis <strong>${Math.round(ahorro)}€</strong> y recuperáis <strong>${Math.round(totalH)} horas</strong> cada mes."`;
+    `Os ahorráis <strong>${Math.round(ahorro)}€</strong> y recuperáis esas <strong>${Math.round(totalH)} horas</strong> cada mes."`;
 }
 </script>
 </body>
