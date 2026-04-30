@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
+<title>Nexo — Auditoría</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
+  :root {
+    --bg: #0f0f1a;
+    --card: #1a1a2e;
+    --card2: #16213e;
+    --accent: #4361ee;
+    --accent2: #3f8efc;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --orange: #f39c12;
+    --text: #e8e8f0;
+    --text2: #8888aa;
+    --border: #2a2a4a;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--card2), var(--card));
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  header h1 { font-size: 20px; font-weight: 700; }
+  header p { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  .tabs {
+    display: flex; gap: 4px; margin-top: 12px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 8px 14px; border-radius: 20px; font-size: 12px;
+    font-weight: 500; cursor: pointer; white-space: nowrap;
+    background: var(--bg); color: var(--text2); border: 1px solid var(--border);
+    transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+    user-select: none; touch-action: manipulation;
+  }
+  .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .section { display: none; padding: 16px; }
+  .section.active { display: block; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+  }
+  .card h3 {
+    font-size: 14px; font-weight: 600; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card h3 .emoji { font-size: 18px; }
+
+  label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--text2); margin-bottom: 4px; margin-top: 10px;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input, select, textarea {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 60px; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  .proceso-card {
+    background: var(--card2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .proceso-card h4 {
+    font-size: 13px; font-weight: 600; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .proceso-card .remove {
+    background: none; border: none; color: var(--red);
+    font-size: 18px; cursor: pointer; width: 30px; padding: 0;
+  }
+
+  .btn {
+    padding: 12px 20px; border-radius: 8px; border: none;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; width: 100%;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-success { background: var(--green); color: white; }
+  .btn-outline {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+  }
+  .btn-sm { padding: 8px 14px; font-size: 12px; width: auto; }
+
+  .result-box {
+    background: linear-gradient(135deg, #1a1a3e, #16213e);
+    border: 1px solid var(--accent); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 12px; text-align: center;
+  }
+  .result-box .big {
+    font-size: 36px; font-weight: 700; color: var(--accent2);
+    margin: 8px 0;
+  }
+  .result-box .label { font-size: 12px; color: var(--text2); }
+  .result-box .sub { font-size: 14px; color: var(--green); font-weight: 500; }
+
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi {
+    background: var(--card2); border-radius: var(--radius);
+    padding: 14px; text-align: center; border: 1px solid var(--border);
+  }
+  .kpi .val { font-size: 22px; font-weight: 700; color: var(--text); }
+  .kpi .lbl { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+  .check-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .check-item input[type="checkbox"] {
+    width: 20px; height: 20px; accent-color: var(--green);
+  }
+
+  .saved-list { margin-top: 12px; }
+  .saved-item {
+    background: var(--card2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .saved-item:hover { border-color: var(--accent); }
+  .saved-item .name { font-weight: 600; font-size: 14px; }
+  .saved-item .meta { font-size: 11px; color: var(--text2); }
+  .saved-item .price { font-weight: 700; color: var(--accent2); }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: white; padding: 10px 20px;
+    border-radius: 20px; font-size: 13px; font-weight: 500;
+    opacity: 0; transition: opacity 0.3s; z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ Nexo — Auditoría</h1>
+  <p id="headerSub">Nueva auditoría</p>
+  <div class="tabs" id="tabs">
+    <button type="button" class="tab active" data-tab="cliente">Cliente</button>
+    <button type="button" class="tab" data-tab="procesos">Procesos</button>
+    <button type="button" class="tab" data-tab="resultado">Resultado</button>
+    <button type="button" class="tab" data-tab="guardados">Guardados</button>
+  </div>
+</header>
+
+<!-- TAB: CLIENTE -->
+<div class="section active" id="sec-cliente">
+  <div class="card">
+    <h3><span class="emoji">🏢</span> Datos del negocio</h3>
+    <label>Nombre del negocio</label>
+    <input type="text" id="negocio" placeholder="Restaurante El Buen Sabor">
+    <label>Contacto</label>
+    <input type="text" id="contacto" placeholder="Carlos García">
+    <div class="row">
+      <div><label>Teléfono</label><input type="tel" id="telefono" placeholder="612 345 678"></div>
+      <div><label>Email</label><input type="email" id="email" placeholder="carlos@..."></div>
+    </div>
+    <label>Tipo de negocio</label>
+    <select id="tipo">
+      <option value="">Seleccionar...</option>
+      <option>Restaurante / Hostelería</option>
+      <option>Gestoría / Asesoría</option>
+      <option>Comercio minorista</option>
+      <option>Inmobiliaria</option>
+      <option>Taller / Servicio técnico</option>
+      <option>Clínica / Consulta</option>
+      <option>Otro</option>
+    </select>
+    <label>Nº empleados</label>
+    <input type="number" id="empleados" placeholder="3">
+  </div>
+  <div class="card">
+    <h3><span class="emoji">🎯</span> Preguntas trampa</h3>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px;">Hazlas de forma casual para detectar procesos ocultos:</p>
+    <div class="check-item"><input type="checkbox"> ¿Cómo le mandáis la info a la gestoría?</div>
+    <div class="check-item"><input type="checkbox"> ¿Alguien revisa las facturas antes de pagarlas?</div>
+    <div class="check-item"><input type="checkbox"> ¿Cómo sabéis si un proveedor ha subido el precio?</div>
+    <div class="check-item"><input type="checkbox"> ¿Tenéis algún Excel que actualicéis cada semana?</div>
+    <div class="check-item"><input type="checkbox"> ¿Hay algo que deberíais hacer pero no hacéis por falta de tiempo?</div>
+    <div class="check-item"><input type="checkbox"> ¿Os han puesto alguna multa por retraso?</div>
+    <div class="check-item"><input type="checkbox"> Si pudieras eliminar una tarea de tu semana, ¿cuál sería?</div>
+  </div>
+  <div class="card">
+    <h3><span class="emoji">📝</span> Notas</h3>
+    <textarea id="notas" rows="4" placeholder="Apuntes de la conversación..."></textarea>
+  </div>
+</div>
+
+<!-- TAB: PROCESOS -->
+<div class="section" id="sec-procesos">
+  <div id="procesos-list"></div>
+  <button class="btn btn-outline" onclick="addProceso()" style="margin-top:8px;">+ Añadir proceso</button>
+</div>
+
+<!-- TAB: RESULTADO -->
+<div class="section" id="sec-resultado">
+  <div class="result-box">
+    <div class="label">CUOTA MENSUAL RECOMENDADA</div>
+    <div class="big" id="r-cuota">—</div>
+    <div class="sub" id="r-ahorro"></div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val" id="r-horas">0</div><div class="lbl">Horas/mes recuperadas</div></div>
+    <div class="kpi"><div class="val" id="r-coste">0€</div><div class="lbl">Coste actual del cliente</div></div>
+    <div class="kpi"><div class="val" id="r-procesos">0</div><div class="lbl">Procesos automatizables</div></div>
+    <div class="kpi"><div class="val" id="r-roi">0x</div><div class="lbl">ROI para el cliente</div></div>
+  </div>
+  <div class="card" style="margin-top:12px;">
+    <h3><span class="emoji">✅</span> Checklist antes de proponer</h3>
+    <div class="check-item"><input type="checkbox"> Cuota < 40% del ahorro</div>
+    <div class="check-item"><input type="checkbox"> Cuota ≥ 99€</div>
+    <div class="check-item"><input type="checkbox"> Todos los procesos son digitales</div>
+    <div class="check-item"><input type="checkbox"> El cliente entiende el ahorro</div>
+  </div>
+  <div class="card">
+    <h3><span class="emoji">🗓</span> Cierre</h3>
+    <label>¿Acepto este cliente?</label>
+    <select id="decision">
+      <option value="">Pendiente</option>
+      <option value="si">Sí</option>
+      <option value="no">No</option>
+    </select>
+    <label>Proceso por el que empiezo</label>
+    <input type="text" id="empezar" placeholder="Informe semanal de proveedores">
+    <label>Fecha estimada de entrega</label>
+    <input type="date" id="fechaEntrega">
+  </div>
+  <button class="btn btn-success" onclick="guardar()" style="margin-top:12px;">💾 Guardar auditoría</button>
+</div>
+
+<!-- TAB: GUARDADOS -->
+<div class="section" id="sec-guardados">
+  <div class="card">
+    <h3><span class="emoji">📂</span> Auditorías guardadas</h3>
+    <div class="saved-list" id="saved-list"><p style="color:var(--text2);font-size:13px;">Sin auditorías guardadas</p></div>
+  </div>
+  <button class="btn btn-primary" onclick="nueva()" style="margin-top:8px;">+ Nueva auditoría</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Tab navigation (event delegation) ──
+document.getElementById('tabs').addEventListener('click', function(e) {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  tab.classList.add('active');
+  const secId = 'sec-' + tab.dataset.tab;
+  const sec = document.getElementById(secId);
+  if (sec) sec.classList.add('active');
+  if (tab.dataset.tab === 'resultado') calcular();
+  if (tab.dataset.tab === 'guardados') renderGuardados();
+});
+
+// ── Procesos ──
+let procesos = [];
+let procesoId = 0;
+
+function addProceso() {
+  procesoId++;
+  procesos.push({ id: procesoId });
+  renderProcesos();
+}
+
+function removeProceso(id) {
+  procesos = procesos.filter(p => p.id !== id);
+  renderProcesos();
+}
+
+function renderProcesos() {
+  const list = document.getElementById('procesos-list');
+  if (procesos.length === 0) {
+    list.innerHTML = '<div class="card"><p style="color:var(--text2);font-size:13px;">Añade procesos que el cliente hace manualmente</p></div>';
+    return;
+  }
+  list.innerHTML = procesos.map((p, i) => `
+    <div class="proceso-card">
+      <h4>Proceso ${i + 1} <button class="remove" onclick="removeProceso(${p.id})">×</button></h4>
+      <label>Nombre del proceso</label>
+      <input type="text" data-id="${p.id}" data-field="nombre" placeholder="Ej: Clasificar facturas" oninput="updateP(this)">
+      <label>¿Quién lo hace?</label>
+      <select data-id="${p.id}" data-field="quien" onchange="updateP(this)">
+        <option value="empleado">Empleado</option>
+        <option value="dueno">El dueño</option>
+        <option value="externo">Externo / gestor</option>
+      </select>
+      <div class="row">
+        <div>
+          <label>Horas por semana</label>
+          <input type="number" step="0.5" data-id="${p.id}" data-field="horas" placeholder="3" oninput="updateP(this)">
+        </div>
+        <div>
+          <label>Coste/hora (€)</label>
+          <input type="number" data-id="${p.id}" data-field="costeHora" placeholder="14" oninput="updateP(this)">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Frecuencia</label>
+          <select data-id="${p.id}" data-field="freq" onchange="updateP(this)">
+            <option value="semanal">Semanal</option>
+            <option value="mensual">Mensual</option>
+            <option value="diario">Diario</option>
+          </select>
+        </div>
+        <div>
+          <label>¿Nexo lo cubre?</label>
+          <select data-id="${p.id}" data-field="viable" onchange="updateP(this)">
+            <option value="si">✅ Sí</option>
+            <option value="parcial">⚠️ Con desarrollo</option>
+            <option value="no">❌ No viable</option>
+          </select>
+        </div>
+      </div>
+      <label>Origen → Destino</label>
+      <input type="text" data-id="${p.id}" data-field="flujo" placeholder="Ej: Email → Excel → Gestoría" oninput="updateP(this)">
+      <label>Notas</label>
+      <input type="text" data-id="${p.id}" data-field="notas" placeholder="Detalles adicionales..." oninput="updateP(this)">
+    </div>
+  `).join('');
+}
+
+function updateP(el) {
+  const id = parseInt(el.dataset.id);
+  const field = el.dataset.field;
+  const p = procesos.find(p => p.id === id);
+  if (p) p[field] = el.value;
+}
+
+// ── Cálculo ──
+function calcular() {
+  let totalHoras = 0;
+  let totalCoste = 0;
+  let automatizables = 0;
+
+  procesos.forEach(p => {
+    const horas = parseFloat(p.horas) || 0;
+    const coste = parseFloat(p.costeHora) || 14;
+    const freq = p.freq || 'semanal';
+    const viable = p.viable || 'si';
+
+    let horasMes = horas;
+    if (freq === 'semanal') horasMes = horas * 4.33;
+    else if (freq === 'diario') horasMes = horas * 22;
+
+    const costeMes = horasMes * coste;
+    totalHoras += horasMes;
+    totalCoste += costeMes;
+    if (viable !== 'no') automatizables++;
+  });
+
+  const cuotaRaw = totalCoste * 0.33;
+  const tramos = [99, 149, 199, 249, 299, 399, 499];
+  let cuota = tramos.find(t => t >= cuotaRaw) || Math.ceil(cuotaRaw / 50) * 50;
+  if (cuota < 99 && totalCoste > 0) cuota = 99;
+
+  const ahorro = totalCoste - cuota;
+  const roi = cuota > 0 ? (totalCoste / cuota).toFixed(1) : 0;
+
+  document.getElementById('r-cuota').textContent = cuota > 0 ? cuota + '€/mes' : '—';
+  document.getElementById('r-ahorro').textContent = ahorro > 0 ? `El cliente ahorra ${Math.round(ahorro)}€/mes` : '';
+  document.getElementById('r-horas').textContent = Math.round(totalHoras * 10) / 10;
+  document.getElementById('r-coste').textContent = Math.round(totalCoste) + '€';
+  document.getElementById('r-procesos').textContent = automatizables;
+  document.getElementById('r-roi').textContent = roi + 'x';
+}
+
+// ── Guardar / Cargar ──
+function guardar() {
+  const data = {
+    id: Date.now(),
+    fecha: new Date().toISOString(),
+    negocio: document.getElementById('negocio').value || 'Sin nombre',
+    contacto: document.getElementById('contacto').value,
+    telefono: document.getElementById('telefono').value,
+    email: document.getElementById('email').value,
+    tipo: document.getElementById('tipo').value,
+    empleados: document.getElementById('empleados').value,
+    notas: document.getElementById('notas').value,
+    procesos: procesos,
+    decision: document.getElementById('decision').value,
+    empezar: document.getElementById('empezar').value,
+    fechaEntrega: document.getElementById('fechaEntrega').value,
+  };
+  const saved = JSON.parse(localStorage.getItem('nexo_auditorias') || '[]');
+  const idx = saved.findIndex(s => s.id === data.id);
+  if (idx >= 0) saved[idx] = data; else saved.push(data);
+  localStorage.setItem('nexo_auditorias', JSON.stringify(saved));
+  showToast('Auditoría guardada');
+}
+
+function renderGuardados() {
+  const saved = JSON.parse(localStorage.getItem('nexo_auditorias') || '[]');
+  const list = document.getElementById('saved-list');
+  if (saved.length === 0) {
+    list.innerHTML = '<p style="color:var(--text2);font-size:13px;">Sin auditorías guardadas</p>';
+    return;
+  }
+  list.innerHTML = saved.sort((a, b) => b.id - a.id).map(s => {
+    const fecha = new Date(s.fecha).toLocaleDateString('es-ES');
+    const nProc = (s.procesos || []).length;
+    return `<div class="saved-item" onclick="cargar(${s.id})">
+      <div><div class="name">${s.negocio}</div><div class="meta">${fecha} · ${nProc} procesos · ${s.tipo || 'Sin tipo'}</div></div>
+      <div><button class="btn btn-sm btn-outline" onclick="event.stopPropagation();borrar(${s.id})">🗑</button></div>
+    </div>`;
+  }).join('');
+}
+
+function cargar(id) {
+  const saved = JSON.parse(localStorage.getItem('nexo_auditorias') || '[]');
+  const data = saved.find(s => s.id === id);
+  if (!data) return;
+  document.getElementById('negocio').value = data.negocio || '';
+  document.getElementById('contacto').value = data.contacto || '';
+  document.getElementById('telefono').value = data.telefono || '';
+  document.getElementById('email').value = data.email || '';
+  document.getElementById('tipo').value = data.tipo || '';
+  document.getElementById('empleados').value = data.empleados || '';
+  document.getElementById('notas').value = data.notas || '';
+  document.getElementById('decision').value = data.decision || '';
+  document.getElementById('empezar').value = data.empezar || '';
+  document.getElementById('fechaEntrega').value = data.fechaEntrega || '';
+  procesos = data.procesos || [];
+  procesoId = procesos.length ? Math.max(...procesos.map(p => p.id)) : 0;
+  renderProcesos();
+  // Restore process field values
+  procesos.forEach(p => {
+    document.querySelectorAll(`[data-id="${p.id}"]`).forEach(el => {
+      if (p[el.dataset.field] !== undefined) el.value = p[el.dataset.field];
+    });
+  });
+  document.querySelector('[data-tab="cliente"]').click();
+  document.getElementById('headerSub').textContent = data.negocio;
+  showToast('Auditoría cargada');
+}
+
+function borrar(id) {
+  if (!confirm('¿Borrar esta auditoría?')) return;
+  let saved = JSON.parse(localStorage.getItem('nexo_auditorias') || '[]');
+  saved = saved.filter(s => s.id !== id);
+  localStorage.setItem('nexo_auditorias', JSON.stringify(saved));
+  renderGuardados();
+  showToast('Auditoría borrada');
+}
+
+function nueva() {
+  document.querySelectorAll('input:not([type=checkbox]), textarea, select').forEach(el => el.value = '');
+  document.querySelectorAll('input[type=checkbox]').forEach(el => el.checked = false);
+  procesos = []; procesoId = 0; renderProcesos();
+  document.getElementById('headerSub').textContent = 'Nueva auditoría';
+  document.querySelector('[data-tab="cliente"]').click();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Init
+renderProcesos();
+addProceso();
+</script>
+</body>
+</html>
