@@ -271,10 +271,8 @@ function calc() {
     totalH += hm; totalC += hm * c;
   });
 
-  const raw = totalC * 0.33;
-  const tramos = [99, 149, 199, 249, 299, 399, 499];
-  let cuota = tramos.find(t => t >= raw) || Math.ceil(raw / 50) * 50;
-  const noCompensa = raw < 99 && totalC > 0;
+  let cuota = Math.round(totalC * 0.33 / 10) * 10;
+  const noCompensa = cuota < 99 && totalC > 0;
 
   const ahorro = totalC - cuota;
   const roi = cuota > 0 ? (totalC / cuota).toFixed(1) : 0;
@@ -286,7 +284,7 @@ function calc() {
   document.getElementById('cuota').textContent = noCompensa ? '⛔' : cuota + '€/mes';
   document.getElementById('cuota').style.color = noCompensa ? 'var(--red)' : 'var(--accent2)';
   document.getElementById('ahorro').textContent = noCompensa
-    ? 'El 33% del ahorro (' + Math.round(raw) + '€) no llega a tu mínimo (99€)'
+    ? 'El 33% del ahorro (' + cuota + '€) no llega a tu mínimo (99€)'
     : 'El cliente ahorra ' + Math.round(ahorro) + '€/mes';
   document.getElementById('ahorro').style.color = noCompensa ? 'var(--red)' : 'var(--green)';
   document.getElementById('k-horas').textContent = Math.round(totalH * 10) / 10;
@@ -317,7 +315,7 @@ function calc() {
     document.getElementById('pitch-text').innerHTML =
       `<em>Desglose:</em>${desglose}` +
       `<br><br><strong style="color:var(--red)">⛔ No compensa.</strong> ` +
-      `El ahorro total es ${Math.round(totalC)}€/mes. El 33% son ${Math.round(raw)}€, por debajo de tu mínimo de 99€.` +
+      `El ahorro total es ${Math.round(totalC)}€/mes. El 33% son ${cuota}€, por debajo de tu mínimo de 99€.` +
       `<br><br>Opciones:<br>` +
       `• Busca más tareas para sumar ahorro<br>` +
       `• Rechaza con honestidad`;
