@@ -180,7 +180,7 @@
   <div class="kpis">
     <div class="kpi"><div class="v" id="k-horas">0</div><div class="l">Horas/mes recuperadas</div></div>
     <div class="kpi"><div class="v" id="k-coste">0€</div><div class="l">Coste actual</div></div>
-    <div class="kpi"><div class="v" id="k-setup">0€</div><div class="l">Setup estimado</div></div>
+
     <div class="kpi"><div class="v" id="k-roi">0x</div><div class="l">ROI cliente</div></div>
   </div>
 
@@ -276,7 +276,7 @@ function calc() {
 
   const ahorro = totalC - cuota;
   const roi = cuota > 0 ? (totalC / cuota).toFixed(1) : 0;
-  const setup = Math.round(totalH * 12);
+
 
   const res = document.getElementById('results');
   res.style.display = totalC > 0 ? 'block' : 'none';
@@ -289,7 +289,7 @@ function calc() {
   document.getElementById('ahorro').style.color = noCompensa ? 'var(--red)' : 'var(--green)';
   document.getElementById('k-horas').textContent = Math.round(totalH * 10) / 10;
   document.getElementById('k-coste').textContent = Math.round(totalC) + '€';
-  document.getElementById('k-setup').textContent = noCompensa ? '—' : setup + '€';
+
   document.getElementById('k-roi').textContent = noCompensa ? '—' : roi + 'x';
 
   // Build pitch with breakdown
