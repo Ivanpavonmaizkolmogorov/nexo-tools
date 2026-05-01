@@ -181,7 +181,7 @@
     <div class="kpi"><div class="v" id="k-horas">0</div><div class="l">Horas/mes recuperadas</div></div>
     <div class="kpi"><div class="v" id="k-coste">0€</div><div class="l">Coste actual</div></div>
 
-    <div class="kpi"><div class="v" id="k-roi">0x</div><div class="l">ROI cliente</div></div>
+    <div class="kpi"><div class="v" id="k-roi">0x</div><div class="l">Por cada 1€ recupera</div></div>
   </div>
 
   <div class="pitch" id="pitch">
@@ -303,10 +303,10 @@ function calc() {
     const f = t.freq || 'semanal';
     const mult = f === 'semanal' ? 4.33 : f === 'diario' ? 22 : 1;
     const freqTxt = f === 'semanal' ? '×4 semanas' : f === 'diario' ? '×22 días' : '';
-    const hm = Math.round(h * mult);
+    const hm = h * mult;
     const cm = Math.round(hm * c);
     const nombre = t.nombre ? `Tarea ${ti}: ${t.nombre}` : `Tarea ${ti}`;
-    desglose += `<br>• ${nombre}: ${h}h/${f === 'diario' ? 'día' : f === 'mensual' ? 'mes' : 'semana'} ${freqTxt} = <strong>${hm}h/mes × ${c}€ = ${cm}€</strong>`;
+    desglose += `<br>• ${nombre}: ${h}h/${f === 'diario' ? 'día' : f === 'mensual' ? 'mes' : 'semana'} ${freqTxt} = <strong>${Math.round(hm)}h/mes × ${c}€ = ${cm}€</strong>`;
   });
 
   const pitchEl = document.getElementById('pitch');
