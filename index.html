@@ -296,8 +296,10 @@ function calc() {
 
   // Build pitch with breakdown
   let desglose = '';
+  let ti = 0;
   tareas.forEach(t => {
     if (!t.horas) return;
+    ti++;
     const h = parseFloat(t.horas) || 0;
     const c = parseFloat(t.coste) || 14;
     const f = t.freq || 'semanal';
@@ -305,7 +307,7 @@ function calc() {
     const freqTxt = f === 'semanal' ? '×4 semanas' : f === 'diario' ? '×22 días' : '';
     const hm = Math.round(h * mult);
     const cm = Math.round(hm * c);
-    const nombre = t.nombre || 'Tarea';
+    const nombre = t.nombre ? `Tarea ${ti}: ${t.nombre}` : `Tarea ${ti}`;
     desglose += `<br>• ${nombre}: ${h}h/${f === 'diario' ? 'día' : f === 'mensual' ? 'mes' : 'semana'} ${freqTxt} = <strong>${hm}h/mes × ${c}€ = ${cm}€</strong>`;
   });
 
