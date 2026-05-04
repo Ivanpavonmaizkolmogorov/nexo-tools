@@ -1,335 +1,304 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#1a1a2e">
-<title>Nexo — Auditoría</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  :root {
-    --bg: #0f0f1a; --card: #1a1a2e; --card2: #16213e;
-    --accent: #4361ee; --accent2: #3f8efc; --green: #2ecc71;
-    --text: #e8e8f0; --text2: #8888aa; --red: #e74c3c;
-    --border: #2a2a4a; --radius: 12px;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; padding-bottom: 60px; }
-
-  header { margin-bottom: 16px; }
-  header h1 { font-size: 18px; font-weight: 700; }
-  header p { font-size: 11px; color: var(--text2); margin-top: 2px; }
-
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
-  .card h3 { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; }
-
-  .q {
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-    font-size: 13px; line-height: 1.5;
-  }
-  .q:last-child { border-bottom: none; }
-  .q .num { color: var(--accent); font-weight: 700; margin-right: 6px; }
-  .q .text { font-weight: 500; }
-  .q .hint { font-size: 11px; color: var(--accent2); margin-top: 3px; font-style: italic; }
-
-  .calc-block {
-    background: var(--card2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px; margin-top: 8px;
-  }
-  .calc-block label { display: block; font-size: 11px; color: var(--text2); margin: 6px 0 3px; font-weight: 500; }
-  .calc-block label:first-child { margin-top: 0; }
-  .calc-block input, .calc-block select {
-    width: 100%; padding: 8px 10px; border-radius: 6px;
-    border: 1px solid var(--border); background: var(--bg);
-    color: var(--text); font-family: inherit; font-size: 13px;
-  }
-  .calc-block input:focus, .calc-block select:focus { outline: none; border-color: var(--accent); }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-
-  .add-btn {
-    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--accent);
-    background: transparent; color: var(--accent); font-family: inherit;
-    font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px;
-    touch-action: manipulation;
-  }
-
-  .del-btn {
-    background: none; border: none; color: var(--red); font-size: 16px;
-    cursor: pointer; padding: 0; float: right; font-family: inherit;
-  }
-
-  .spin { display: flex; align-items: center; gap: 0; }
-  .spin input { text-align: center; border-radius: 0; -moz-appearance: textfield; }
-  .spin input::-webkit-inner-spin-button, .spin input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .spin-btn {
-    width: 38px; height: 38px; border: 1px solid var(--border); background: var(--card2);
-    color: var(--accent2); font-size: 18px; font-weight: 700; cursor: pointer;
-    font-family: inherit; touch-action: manipulation; display: flex;
-    align-items: center; justify-content: center;
-  }
-  .spin-btn:first-child { border-radius: 8px 0 0 8px; }
-  .spin-btn:last-child { border-radius: 0 8px 8px 0; }
-  .spin-btn:active { background: var(--accent); color: white; }
-
-  .result {
-    background: linear-gradient(135deg, #1a1a3e, #16213e);
-    border: 1px solid var(--accent); border-radius: var(--radius);
-    padding: 20px; text-align: center; margin-bottom: 12px;
-  }
-  .result .lbl { font-size: 11px; color: var(--text2); text-transform: uppercase; }
-  .result .big { font-size: 36px; font-weight: 700; color: var(--accent2); margin: 6px 0; }
-  .result .sub { font-size: 13px; color: var(--green); font-weight: 500; }
-
-  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-  .kpi { background: var(--card2); border-radius: var(--radius); padding: 12px; text-align: center; border: 1px solid var(--border); }
-  .kpi .v { font-size: 20px; font-weight: 700; }
-  .kpi .l { font-size: 10px; color: var(--text2); margin-top: 3px; }
-
-  .pitch {
-    background: var(--card); border: 1px solid var(--green); border-radius: var(--radius);
-    padding: 14px; font-size: 12px; line-height: 1.7; color: var(--text2);
-  }
-  .pitch strong { color: var(--green); }
-
-  #results { display: none; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nexo — Auditoría Visual</title>
+  <meta name="description" content="Herramienta de auditoría de procesos para consultores de automatización">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow@0.0.60/dist/drawflow.min.css">
+  <link rel="stylesheet" href="css/canvas.css">
 </head>
 <body>
 
-<header>
-  <h1>⚡ Nexo — Auditoría</h1>
-  <p>Encuentra el dolor. Calcula el precio.</p>
-</header>
+<!-- ============================================= -->
+<!-- PANTALLA INICIO — Lista de clientes           -->
+<!-- ============================================= -->
+<div id="home" class="home-screen">
+  <div class="title">⚡ Nexo</div>
+  <div class="subtitle">Auditoría de procesos</div>
 
-<!-- PREGUNTAS PARA DETECTAR -->
-<div class="card">
-  <h3>🔍 Encontrar las fugas</h3>
+  <div class="client-list" id="clientList"></div>
 
-  <div class="q">
-    <span class="num">1.</span>
-    <span class="text">¿Qué tareas repetís cada semana sin falta?</span>
-    <div class="hint">→ Busca lo que hacen "porque siempre se ha hecho así"</div>
-  </div>
+  <button class="btn primary" style="margin-top: 16px; padding: 12px 24px; font-size: 14px;" onclick="app.showNewClientForm()">
+    + Nuevo cliente
+  </button>
 
-  <div class="q">
-    <span class="num">2.</span>
-    <span class="text">Si pudieras eliminar una tarea de tu semana, ¿cuál sería?</span>
-    <div class="hint">→ La que más duele. Ahí está el dinero</div>
-  </div>
-
-  <div class="q">
-    <span class="num">3.</span>
-    <span class="text">¿Hay algo que deberíais hacer pero no hacéis por falta de tiempo?</span>
-    <div class="hint">→ Ej: "comparar precios de proveedores", "enviar resúmenes al socio", "revisar facturas". Si es digital y repetitivo, es dinero</div>
-  </div>
-
-  <div class="q">
-    <span class="num">4.</span>
-    <span class="text">¿Os llegan facturas o datos por email que luego alguien pasa a un Excel o se los manda a la gestoría?</span>
-    <div class="hint">→ Ej: "las facturas de proveedores me llegan al email y yo las paso una a una al Excel". Eso es automatizable al 100%</div>
-  </div>
-
-  <div class="q">
-    <span class="num">5.</span>
-    <span class="text">¿Cómo le mandáis la información a la gestoría?</span>
-    <div class="hint">→ Si es manual, hay un proceso que automatizar</div>
-  </div>
-
-  <div class="q">
-    <span class="num">6.</span>
-    <span class="text">¿Preparáis algún informe, resumen o cierre de forma periódica?</span>
-    <div class="hint">→ Ej: "cada viernes hago un resumen de ventas en Excel". Informes recurrentes = automatización perfecta</div>
-  </div>
-
-  <div class="q">
-    <span class="num">7.</span>
-    <span class="text">¿Cómo sabéis si un proveedor os ha subido el precio?</span>
-    <div class="hint">→ Si no lo saben, están perdiendo dinero sin saberlo</div>
-  </div>
-
-  <div class="q">
-    <span class="num">8.</span>
-    <span class="text">¿Cómo sabéis cuándo toca pedir más de algo? ¿Por ojo o lleváis control?</span>
-    <div class="hint">→ Ej: "lo miro cuando se acaba" o "llevo un Excel". Si tienen TPV o facturas, puedes cruzar compras vs ventas</div>
-  </div>
-</div>
-
-<!-- CALCULADORA INLINE -->
-<div class="card">
-  <h3>🧮 Calcular el ahorro</h3>
-
-  <div class="q" style="border-bottom:none;">
-    <span class="num">9.</span>
-    <span class="text">De lo que hemos hablado, ¿qué tareas os llevan más tiempo?</span>
-    <div class="hint">→ Añade cada tarea con sus datos para calcular el precio</div>
-  </div>
-
-  <div id="tareas"></div>
-  <button type="button" class="add-btn" onclick="addTarea()">+ Añadir tarea</button>
-</div>
-
-<!-- RESULTADO -->
-<div id="results">
-  <div class="result">
-    <div class="lbl">Cuota mensual recomendada</div>
-    <div class="big" id="cuota">—</div>
-    <div class="sub" id="ahorro"></div>
-  </div>
-
-  <div class="kpis">
-    <div class="kpi"><div class="v" id="k-horas">0</div><div class="l">Horas/mes recuperadas</div></div>
-    <div class="kpi"><div class="v" id="k-coste">0€</div><div class="l">Coste actual</div></div>
-
-    <div class="kpi"><div class="v" id="k-roi">0x</div><div class="l">Por cada 1€ recupera</div></div>
-  </div>
-
-  <div class="pitch" id="pitch">
-    <strong>💬 Tu pitch:</strong><br>
-    <span id="pitch-text"></span>
-  </div>
-</div>
-
-<script>
-let tareas = [], tid = 0;
-
-function addTarea() {
-  tid++;
-  tareas.push({ id: tid });
-  render();
-}
-
-function delTarea(id) {
-  tareas = tareas.filter(t => t.id !== id);
-  render(); calc();
-}
-
-function render() {
-  const el = document.getElementById('tareas');
-  el.innerHTML = tareas.map((t, i) => `
-    <div class="calc-block" style="margin-bottom:8px;">
-      <button type="button" class="del-btn" onclick="delTarea(${t.id})">×</button>
-      <label>Tarea ${i + 1}</label>
-      <input type="text" placeholder="Ej: Clasificar facturas de proveedores" data-id="${t.id}" data-f="nombre" oninput="upd(this);calc()">
-      <div class="row2">
-        <div><label>Horas/semana</label>
-          <div class="spin">
-            <button type="button" class="spin-btn" onclick="spin(${t.id},'horas',-0.5)">−</button>
-            <input type="number" step="0.5" placeholder="3" data-id="${t.id}" data-f="horas" oninput="upd(this);calc()">
-            <button type="button" class="spin-btn" onclick="spin(${t.id},'horas',0.5)">+</button>
-          </div>
-        </div>
-        <div><label>€/hora</label>
-          <div class="spin">
-            <button type="button" class="spin-btn" onclick="spin(${t.id},'coste',-1)">−</button>
-            <input type="number" placeholder="14" data-id="${t.id}" data-f="coste" oninput="upd(this);calc()">
-            <button type="button" class="spin-btn" onclick="spin(${t.id},'coste',1)">+</button>
-          </div>
-        </div>
+  <!-- Form inline para nuevo cliente -->
+  <div id="newClientForm" style="display:none; margin-top:16px; width:100%; max-width:500px;">
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px;">
+      <div class="field">
+        <label>Nombre del negocio</label>
+        <input type="text" id="newClientName" placeholder="Ej: Gym Iron, Carnicería López..." autofocus>
       </div>
-      <div style="font-size:10px;color:var(--text2);margin-top:5px;line-height:1.6;">
-        📌 Empleado base: 10-14€ · Cualificado: 14-20€ · Dueño: 20-35€ · Gestor externo: 30-60€
+      <div class="field">
+        <label>Contacto (opcional)</label>
+        <input type="text" id="newClientContact" placeholder="Nombre de la persona, teléfono...">
       </div>
-      <label>Frecuencia</label>
-      <select data-id="${t.id}" data-f="freq" onchange="upd(this);calc()">
-        <option value="semanal">Semanal</option>
-        <option value="diario">Diario</option>
-        <option value="mensual">Mensual</option>
-      </select>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn primary" onclick="app.createClient()">Crear y auditar</button>
+        <button class="btn" onclick="app.hideNewClientForm()">Cancelar</button>
+      </div>
     </div>
-  `).join('');
-  tareas.forEach(t => {
-    document.querySelectorAll(`[data-id="${t.id}"]`).forEach(el => {
-      if (t[el.dataset.f] !== undefined) el.value = t[el.dataset.f];
-    });
-  });
-}
+  </div>
 
-function upd(el) {
-  const t = tareas.find(t => t.id === parseInt(el.dataset.id));
-  if (t) t[el.dataset.f] = el.value;
-}
+  <!-- Link a v1 -->
+  <a href="auditoria_v1.html" style="margin-top:24px; font-size:11px; color:var(--text2); text-decoration:none;">
+    Abrir auditoría rápida (v1)
+  </a>
+</div>
 
-function spin(id, field, delta) {
-  const t = tareas.find(t => t.id === id);
-  if (!t) return;
-  const cur = parseFloat(t[field]) || 0;
-  const val = Math.max(0, cur + delta);
-  t[field] = val;
-  const inp = document.querySelector(`[data-id="${id}"][data-f="${field}"]`);
-  if (inp) inp.value = val;
-  calc();
-}
+<!-- ============================================= -->
+<!-- PANTALLA CANVAS — Auditoría visual            -->
+<!-- ============================================= -->
+<div id="canvasView" class="app-layout" style="display:none;">
 
-function calc() {
-  let totalH = 0, totalC = 0;
-  tareas.forEach(t => {
-    const h = parseFloat(t.horas) || 0;
-    const c = parseFloat(t.coste) || 14;
-    const f = t.freq || 'semanal';
-    let hm = f === 'semanal' ? h * 4.33 : f === 'diario' ? h * 22 : h;
-    totalH += hm; totalC += hm * c;
-  });
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="btn" onclick="app.goHome()" title="Volver">← </button>
+    <span class="logo">Nexo</span>
+    <div class="cliente-info">
+      <input type="text" id="topClientName" placeholder="Cliente" readonly style="font-weight:600; width:160px;">
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnBeforeAfter" onclick="app.toggleBeforeAfter()">👁️ Antes/Después</button>
+      <button class="btn success" onclick="app.guardar()">💾 Guardar</button>
+      <button class="btn primary" onclick="app.generarPDF()">📄 Propuesta</button>
+    </div>
+  </div>
 
-  let cuota = Math.round(totalC * 0.33 / 10) * 10;
-  const noCompensa = cuota < 99 && totalC > 0;
+  <!-- PANEL IZQUIERDO -->
+  <div class="left-panel">
+    <button class="btn primary" style="width:100%; padding:12px; font-size:13px; margin-bottom:14px;" onclick="app.startWizard()">
+      ➕ Nuevo proceso
+    </button>
 
-  const ahorro = totalC - cuota;
-  const roi = cuota > 0 ? (totalC / cuota).toFixed(1) : 0;
+    <div class="panel-title">O arrastra al lienzo</div>
+    <div class="node-palette">
+      <div class="drag-node trigger" draggable="true" data-type="trigger">
+        <div class="icon">🟢</div>
+        <span>Disparador</span>
+      </div>
+      <div class="drag-node app" draggable="true" data-type="app">
+        <div class="icon">🔵</div>
+        <span>App / Herramienta</span>
+      </div>
+      <div class="drag-node manual" draggable="true" data-type="manual">
+        <div class="icon">🔴</div>
+        <span>Paso Manual</span>
+      </div>
+    </div>
 
+    <div class="panel-title">Guía de preguntas</div>
+    <ul class="checklist" id="checklist">
+      <li onclick="this.classList.toggle('done')"><span class="num">1.</span> ¿Cómo funciona un día normal en el negocio?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">2.</span> Si pudieras eliminar una tarea, ¿cuál sería?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">3.</span> ¿Hay algo que deberíais hacer pero no hacéis por falta de tiempo?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">4.</span> ¿Os llegan facturas o datos por email que luego alguien pasa a un Excel?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">5.</span> ¿Cómo le mandáis la información a la gestoría?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">6.</span> ¿Preparáis algún informe o cierre periódico?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">7.</span> ¿Cómo sabéis si un proveedor os ha subido el precio?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">8.</span> ¿Cómo sabéis cuándo toca pedir más de algo?</li>
+      <li onclick="this.classList.toggle('done')"><span class="num">9.</span> De lo que hemos hablado, ¿qué os lleva más tiempo?</li>
+    </ul>
 
-  const res = document.getElementById('results');
-  res.style.display = totalC > 0 ? 'block' : 'none';
+    <div class="panel-title" style="margin-top:16px;">Referencia coste/hora</div>
+    <div style="font-size:10px; color:var(--text2); line-height:1.8;">
+      📌 Empleado base: 10-14€<br>
+      📌 Cualificado: 14-20€<br>
+      📌 Dueño: 20-35€<br>
+      📌 Gestor externo: 30-60€
+    </div>
 
-  document.getElementById('cuota').textContent = noCompensa ? '⛔' : cuota + '€/mes';
-  document.getElementById('cuota').style.color = noCompensa ? 'var(--red)' : 'var(--accent2)';
-  document.getElementById('ahorro').textContent = noCompensa
-    ? 'El 33% del ahorro (' + cuota + '€) no llega a tu mínimo (99€)'
-    : 'El cliente ahorra ' + Math.round(ahorro) + '€/mes';
-  document.getElementById('ahorro').style.color = noCompensa ? 'var(--red)' : 'var(--green)';
-  document.getElementById('k-horas').textContent = Math.round(totalH * 10) / 10;
-  document.getElementById('k-coste').textContent = Math.round(totalC) + '€';
+    <div class="panel-title" style="margin-top:16px;">🔧 Instalación general</div>
+    <div style="font-size:10px; color:var(--text2); margin-bottom:6px;">Coste de puesta en marcha del proyecto completo</div>
+    <div class="field">
+      <label>Horas</label>
+      <div class="spin">
+        <button class="spin-btn" onclick="app.spinGeneralSetup('gSetupHoras', -0.5)">−</button>
+        <input type="number" id="gSetupHoras" value="0" step="0.5" oninput="app.updateGeneralSetup()">
+        <button class="spin-btn" onclick="app.spinGeneralSetup('gSetupHoras', 0.5)">+</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>€/hora</label>
+      <div class="spin">
+        <button class="spin-btn" onclick="app.spinGeneralSetup('gSetupRate', -5)">−</button>
+        <input type="number" id="gSetupRate" value="30" oninput="app.updateGeneralSetup()">
+        <button class="spin-btn" onclick="app.spinGeneralSetup('gSetupRate', 5)">+</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Precio (vacío = auto)</label>
+      <input type="number" id="gSetupPrecio" placeholder="Auto" oninput="app.updateGeneralSetup()" style="width:100%; background:var(--card2); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-family:var(--font); font-size:13px;">
+      <div id="gSetupResumen" style="font-size:11px; color:var(--text2); margin-top:4px;"></div>
+    </div>
+  </div>
 
-  document.getElementById('k-roi').textContent = noCompensa ? '—' : roi + 'x';
+  <!-- CANVAS CENTRAL -->
+  <div class="canvas-area">
+    <div id="drawflow"></div>
+  </div>
 
-  // Build pitch with breakdown
-  let desglose = '';
-  let ti = 0;
-  tareas.forEach(t => {
-    if (!t.horas) return;
-    ti++;
-    const h = parseFloat(t.horas) || 0;
-    const c = parseFloat(t.coste) || 14;
-    const f = t.freq || 'semanal';
-    const mult = f === 'semanal' ? 4.33 : f === 'diario' ? 22 : 1;
-    const freqTxt = f === 'semanal' ? '×4 semanas' : f === 'diario' ? '×22 días' : '';
-    const hm = h * mult;
-    const cm = Math.round(hm * c);
-    const nombre = t.nombre ? `Tarea ${ti}: ${t.nombre}` : `Tarea ${ti}`;
-    desglose += `<br>• ${nombre}: ${h}h/${f === 'diario' ? 'día' : f === 'mensual' ? 'mes' : 'semana'} ${freqTxt} = <strong>${Math.round(hm)}h/mes × ${c}€ = ${cm}€</strong>`;
-  });
+  <!-- PANEL DERECHO — Detalles nodo -->
+  <div class="right-panel" id="rightPanel">
+    <h3>
+      <span id="panelTitle">🔴 Paso Manual</span>
+      <button class="close-panel" onclick="app.closePanel()">✕</button>
+    </h3>
 
-  const pitchEl = document.getElementById('pitch');
-  if (noCompensa) {
-    pitchEl.style.borderColor = 'var(--red)';
-    document.getElementById('pitch-text').innerHTML =
-      `<em>Desglose:</em>${desglose}` +
-      `<br><br><strong style="color:var(--red)">⛔ No compensa.</strong> ` +
-      `El ahorro total es ${Math.round(totalC)}€/mes. El 33% son ${cuota}€, por debajo de tu mínimo de 99€.` +
-      `<br><br>Opciones:<br>` +
-      `• Busca más tareas para sumar ahorro<br>` +
-      `• Rechaza con honestidad`;
-  } else {
-    pitchEl.style.borderColor = 'var(--green)';
-    document.getElementById('pitch-text').innerHTML =
-      `<em>Desglose:</em>${desglose}` +
-      `<br><br>💬 "Dedicáis <strong>${Math.round(totalH)} horas/mes</strong> a esto. ` +
-      `Os cuesta <strong>${Math.round(totalC)}€/mes</strong> en nómina. ` +
-      `Son horas que podríais usar para atender mejor a clientes, captar nuevos o simplemente no quedaros hasta las mil. ` +
-      `Yo os lo quito de encima por <strong>${cuota}€/mes</strong>."` +
-      `<br><br><em style="color:var(--text2)">Precio. Silencio.</em>`;
-  }
-}
-</script>
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" id="nodeName" placeholder="Ej: Gmail, Excel, Factusol..." oninput="app.updateNodeData()">
+    </div>
+
+    <div id="manualFields">
+      <div class="field">
+        <label>¿Qué hacen exactamente?</label>
+        <textarea id="nodeDesc" placeholder="Ej: Descarga el PDF y pica los datos en el CRM uno a uno..." oninput="app.updateNodeData()"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Horas por semana</label>
+        <div class="spin">
+          <button class="spin-btn" onclick="app.spinValue('nodeHours', -0.5)">−</button>
+          <input type="number" id="nodeHours" step="0.5" value="0" oninput="app.updateNodeData()">
+          <button class="spin-btn" onclick="app.spinValue('nodeHours', 0.5)">+</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Coste por hora (€)</label>
+        <div class="spin">
+          <button class="spin-btn" onclick="app.spinValue('nodeCost', -1)">−</button>
+          <input type="number" id="nodeCost" value="14" oninput="app.updateNodeData()">
+          <button class="spin-btn" onclick="app.spinValue('nodeCost', 1)">+</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Frecuencia</label>
+        <select id="nodeFreq" onchange="app.updateNodeData()">
+          <option value="semanal">Semanal</option>
+          <option value="diario">Diario</option>
+          <option value="mensual">Mensual</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Solución</label>
+        <div class="estado-selector">
+          <button class="estado-btn" data-estado="directo" onclick="app.setSolucion('directo')">🔧 Directo</button>
+          <button class="estado-btn" data-estado="conCambio" onclick="app.setSolucion('conCambio')">💡 Con cambio</button>
+        </div>
+      </div>
+      <div class="field" id="sugerenciaWrap" style="display:none;">
+        <label>¿Qué cambio sugieres?</label>
+        <textarea id="nodeSugerencia" rows="2" placeholder="Ej: Cambiar albarán en papel por formulario digital" oninput="app.updateNodeData()" style="width:100%; background:var(--card2); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-family:var(--font); font-size:12px; resize:vertical;"></textarea>
+      </div>
+      <div class="field" id="quienWrap" style="display:none;">
+        <label>¿Quién lo implementa?</label>
+        <div class="estado-selector">
+          <button class="estado-btn" data-quien="cliente" onclick="app.setQuien('cliente')">👤 El cliente</button>
+          <button class="estado-btn" data-quien="yo" onclick="app.setQuien('yo')">🔧 Yo</button>
+        </div>
+      </div>
+      <div id="setupWrap" style="display:none;">
+        <div class="field">
+          <label>⏱️ Horas de instalación</label>
+          <div class="spin">
+            <button class="spin-btn" onclick="app.spinValue('setupHoras', -0.5)">−</button>
+            <input type="number" id="setupHoras" value="0" step="0.5" oninput="app.updateSetup()">
+            <button class="spin-btn" onclick="app.spinValue('setupHoras', 0.5)">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>€/hora instalación</label>
+          <div class="spin">
+            <button class="spin-btn" onclick="app.spinValue('setupRate', -5)">−</button>
+            <input type="number" id="setupRate" value="30" oninput="app.updateSetup()">
+            <button class="spin-btn" onclick="app.spinValue('setupRate', 5)">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Precio instalación (vacío = auto)</label>
+          <input type="number" id="setupPrecio" placeholder="Auto" oninput="app.updateSetup()" style="width:100%; background:var(--card2); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-family:var(--font); font-size:13px;">
+          <div id="setupResumen" style="font-size:11px; color:var(--text2); margin-top:4px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón continuar wizard (oculto por defecto) -->
+    <button id="wizardContinueBtn" class="btn primary" style="display:none; width:100%; padding:14px; font-size:14px; margin-top:12px;" onclick="app.continueFromSelected()">
+      ▶️ Continuar proceso
+    </button>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottombar">
+    <div class="indicator">
+      📊 Nodos: <span class="value" id="indNodos">0</span>
+    </div>
+    <div class="indicator">
+      ⏱️ Horas/mes: <span class="value" id="indHoras">0</span>
+    </div>
+    <div class="indicator coste-toggle" onclick="app.toggleCoste()" title="Click para revelar">
+      💰 Coste fuga: <span class="value hidden-value" id="indCoste">0€</span>
+    </div>
+    <div class="indicator" id="indCuotaWrap" style="display:none;">
+      → Cuota: <span class="value" id="indCuota">0€</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================= -->
+<!-- SELECTOR DE NODO (modal)                      -->
+<!-- ============================================= -->
+<div id="nodeSelector" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:center; justify-content:center;">
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 id="nodeSelectorTitle" style="font-size:15px; font-weight:600;">Selecciona</h3>
+      <button class="btn" onclick="app.cancelNodeSelector()" style="font-size:16px; padding:4px 10px;">✕</button>
+    </div>
+    <input type="text" id="nodeSelectorSearch" placeholder="Buscar..." style="width:100%; background:var(--card2); border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:8px; font-family:var(--font); font-size:14px; margin-bottom:12px;">
+    <div id="nodeSelectorGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; max-height:50vh; overflow-y:auto;"></div>
+    <div id="customNodeInput" style="display:none; margin-top:12px; gap:8px;">
+      <input type="text" id="customNodeName" placeholder="Nombre personalizado..." style="flex:1; background:var(--card2); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:8px; font-family:var(--font); font-size:14px; width:100%; margin-bottom:8px;">
+      <button class="btn primary" onclick="app.confirmCustomNode()" style="width:100%; justify-content:center; padding:10px;">Añadir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================= -->
+<!-- WIZARD — Pregunta Sí/No                       -->
+<!-- ============================================= -->
+<div id="wizardPrompt" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:center; justify-content:center;">
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; width:90%; max-width:360px; text-align:center;">
+    <div id="wizardBreadcrumb" style="font-size:11px; color:var(--text2); margin-bottom:10px; min-height:16px;"></div>
+    <div id="wizardIcon" style="font-size:36px; margin-bottom:12px;"></div>
+    <h3 id="wizardQuestion" style="font-size:16px; font-weight:600; margin-bottom:20px; line-height:1.4;"></h3>
+    <div id="wizardBtns" style="display:flex; gap:10px; justify-content:center;">
+      <button class="btn success" style="padding:12px 28px; font-size:14px;" onclick="app.wizardAnswer(true)">✅ Sí</button>
+      <button class="btn" style="padding:12px 28px; font-size:14px;" onclick="app.wizardAnswer(false)">❌ No</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================= -->
+<!-- PLANTILLA PDF (oculta)                        -->
+<!-- ============================================= -->
+<div id="pdfContent" style="display:none; padding:28px; background:white; color:#1a1a2e; font-family:'Inter',sans-serif;">
+  <div style="text-align:center; margin-bottom:14px;">
+    <h1 style="color:#6366f1; font-size:22px; margin-bottom:2px;">⚡ Nexo</h1>
+    <p style="color:#888; font-size:11px;">Diagnóstico de automatización</p>
+  </div>
+  <div id="pdfBody"></div>
+  <div style="margin-top:14px; padding-top:8px; border-top:1px solid #ddd; font-size:9px; color:#aaa; text-align:center;">
+    Generado por Nexo · <span id="pdfDate"></span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow@0.0.60/dist/drawflow.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>

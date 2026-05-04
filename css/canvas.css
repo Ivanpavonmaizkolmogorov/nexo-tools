@@ -1,0 +1,706 @@
+/* =============================================
+   NEXO AUDIT CANVAS — Design System
+   ============================================= */
+
+:root {
+  --bg: #0a0e1a;
+  --card: #111827;
+  --card2: #1a2235;
+  --border: #2a3450;
+  --text: #e2e8f0;
+  --text2: #8892a8;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #22c55e;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --radius: 12px;
+  --font: 'Inter', -apple-system, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* =============================================
+   LAYOUT — 3 columnas: panel izq + canvas + panel der
+   ============================================= */
+.app-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr 0px;
+  grid-template-rows: 56px 1fr 48px;
+  height: 100vh;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.app-layout.panel-open {
+  grid-template-columns: 220px 1fr 300px;
+}
+
+/* =============================================
+   TOPBAR
+   ============================================= */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  z-index: 10;
+}
+
+.topbar .logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent2);
+  letter-spacing: -0.5px;
+}
+
+.topbar .cliente-info {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: 16px;
+}
+
+.topbar input {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+.topbar input::placeholder { color: var(--text2); }
+
+.topbar .actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card2);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover { background: var(--border); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn.primary:hover { background: var(--accent2); }
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn.danger:hover { background: var(--red); color: white; }
+.btn.success { border-color: var(--green); color: var(--green); }
+.btn.success:hover { background: var(--green); color: white; }
+
+/* =============================================
+   PANEL IZQUIERDO — Nodos + Checklist
+   ============================================= */
+.left-panel {
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text2);
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  margin-top: 14px;
+}
+
+.panel-title:first-child { margin-top: 0; }
+
+/* Nodos arrastrables */
+.node-palette .drag-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  cursor: grab;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  transition: all 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.drag-node:active { cursor: grabbing; transform: scale(0.97); }
+.drag-node:hover { border-color: var(--accent); }
+
+.drag-node .icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.drag-node.trigger .icon { background: rgba(34, 197, 94, 0.15); }
+.drag-node.app .icon { background: rgba(99, 102, 241, 0.15); }
+.drag-node.manual .icon { background: rgba(239, 68, 68, 0.15); }
+
+/* Checklist */
+.checklist { list-style: none; }
+.checklist li {
+  font-size: 12px;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  line-height: 1.5;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.checklist li:hover { color: var(--text); }
+.checklist li.done { text-decoration: line-through; opacity: 0.5; }
+.checklist li .num { color: var(--accent2); font-weight: 600; margin-right: 4px; }
+
+/* =============================================
+   CANVAS (Drawflow)
+   ============================================= */
+.canvas-area {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03), transparent 70%),
+    var(--bg);
+  background-size: 100% 100%, 30px 30px;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03), transparent 70%),
+    radial-gradient(circle, var(--border) 1px, transparent 1px);
+}
+
+/* Drawflow overrides */
+#drawflow {
+  width: 100%;
+  height: 100%;
+}
+
+.drawflow .drawflow-node {
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  min-width: 140px;
+  padding: 0;
+  font-family: var(--font);
+  overflow: visible !important;
+}
+
+.drawflow .drawflow-node .drawflow_content_node {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: visible;
+}
+
+.drawflow .drawflow-node.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.drawflow .drawflow-node .node-icon {
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.drawflow .drawflow-node .node-label {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.drawflow .drawflow-node .node-sub {
+  font-size: 10px;
+  color: var(--text2);
+}
+
+.drawflow .drawflow-node .node-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.15s, transform 0.15s, background 0.15s;
+  z-index: 5;
+  padding: 0;
+  line-height: 1;
+}
+
+.drawflow .drawflow-node:hover .node-delete {
+  opacity: 1;
+}
+
+.drawflow .drawflow-node .node-delete:hover {
+  background: var(--red);
+  color: white;
+  transform: scale(1.2);
+}
+
+/* Tipos de nodo */
+.drawflow .drawflow-node.trigger-node { border-color: var(--green); }
+.drawflow .drawflow-node.trigger-node .node-icon { background: rgba(34, 197, 94, 0.15); }
+
+.drawflow .drawflow-node.app-node { border-color: var(--accent); }
+.drawflow .drawflow-node.app-node .node-icon { background: rgba(99, 102, 241, 0.15); }
+
+.drawflow .drawflow-node.manual-node { border-color: var(--red); }
+.drawflow .drawflow-node.manual-node .node-icon { background: rgba(239, 68, 68, 0.15); }
+.drawflow .drawflow-node.manual-node { background: linear-gradient(135deg, #1a1015, #1c1525); }
+
+/* Con cambio = naranja (sugerencia de mejora) */
+.drawflow .drawflow-node.con-cambio { border-color: #f59e0b; }
+.drawflow .drawflow-node.con-cambio .node-icon { background: rgba(245, 158, 11, 0.15); }
+.drawflow .drawflow-node.con-cambio { background: linear-gradient(135deg, #1a1810, #1c1a15); }
+
+.drawflow .drawflow-node.digital-node { border-color: #64748b; }
+.drawflow .drawflow-node.digital-node .node-icon { background: rgba(100, 116, 139, 0.15); }
+.drawflow .drawflow-node.digital-node { background: linear-gradient(135deg, #1a1a20, #1c1e28); }
+
+/* Líneas de conexión */
+.drawflow .connection .main-path {
+  stroke: var(--border);
+  stroke-width: 2;
+}
+
+.drawflow .connection .main-path:hover {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+/* =============================================
+   CONEXIONES — 4 puntos (top, right, bottom, left)
+   ============================================= */
+.drawflow .drawflow-node .inputs,
+.drawflow .drawflow-node .outputs {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  pointer-events: none;
+}
+
+.drawflow .drawflow-node .inputs .input,
+.drawflow .drawflow-node .outputs .output {
+  position: absolute !important;
+  pointer-events: all;
+  width: 14px;
+  height: 14px;
+}
+
+/* Input 1 = ARRIBA */
+.drawflow .drawflow-node .inputs .input_1 {
+  top: -7px !important;
+  left: 50% !important;
+  transform: translateX(-50%);
+}
+
+/* Input 2 = IZQUIERDA */
+.drawflow .drawflow-node .inputs .input_2 {
+  left: -7px !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+}
+
+/* Output 1 = ABAJO */
+.drawflow .drawflow-node .outputs .output_1 {
+  bottom: -7px !important;
+  top: auto !important;
+  left: 50% !important;
+  transform: translateX(-50%);
+}
+
+/* Output 2 = DERECHA */
+.drawflow .drawflow-node .outputs .output_2 {
+  right: -7px !important;
+  left: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+}
+
+/* Puertos */
+.drawflow .drawflow-node .input, .drawflow .drawflow-node .output {
+  background: var(--accent);
+  border: 2px solid var(--card);
+  transition: all 0.2s ease;
+  cursor: crosshair;
+}
+
+.drawflow .drawflow-node .input:hover, .drawflow .drawflow-node .output:hover {
+  background: var(--green);
+  transform: scale(1.8);
+  z-index: 10;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.drawflow .drawflow-node .output::after {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 10px;
+  font-weight: 900;
+  color: white;
+  transition: transform 0.15s ease;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.drawflow .drawflow-node .output:hover::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* =============================================
+   PANEL DERECHO — Detalles del nodo
+   ============================================= */
+.right-panel {
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px;
+  display: none;
+}
+
+.app-layout.panel-open .right-panel { display: block; }
+
+.right-panel h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.right-panel .close-panel {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.field { margin-bottom: 14px; }
+.field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+.field textarea { resize: vertical; min-height: 60px; }
+
+.spin {
+  display: flex;
+  align-items: center;
+}
+
+.spin input {
+  text-align: center;
+  border-radius: 0;
+  -moz-appearance: textfield;
+}
+
+.spin input::-webkit-inner-spin-button,
+.spin input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.spin-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--accent2);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.spin-btn:first-child { border-radius: 6px 0 0 6px; }
+.spin-btn:last-child { border-radius: 0 6px 6px 0; }
+.spin-btn:active { background: var(--accent); color: white; }
+
+.estado-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.estado-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card2);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.estado-btn.active-auto { border-color: var(--green); color: var(--green); background: rgba(34, 197, 94, 0.1); }
+.estado-btn.active-skip { border-color: var(--red); color: var(--red); background: rgba(239, 68, 68, 0.1); }
+.estado-btn.active-future { border-color: var(--orange); color: var(--orange); background: rgba(245, 158, 11, 0.1); }
+
+/* =============================================
+   BOTTOM BAR — Indicadores
+   ============================================= */
+.bottombar {
+  grid-column: 1 / -1;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 20px;
+  font-size: 12px;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text2);
+}
+
+.indicator .value {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.indicator.danger .value { color: var(--red); }
+.indicator.success .value { color: var(--green); }
+
+.coste-toggle {
+  margin-left: auto;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.coste-toggle:hover { background: var(--card2); }
+.coste-toggle .hidden-value { filter: blur(8px); transition: filter 0.3s; }
+.coste-toggle.revealed .hidden-value { filter: none; }
+
+/* =============================================
+   PANTALLA INICIO — Lista de clientes
+   ============================================= */
+.home-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 20px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.home-screen .title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--accent2);
+}
+
+.home-screen .subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 32px;
+}
+
+.client-list {
+  width: 100%;
+  max-width: 500px;
+}
+
+.client-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.client-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+}
+
+.client-card .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent2);
+  flex-shrink: 0;
+}
+
+.client-card .info { flex: 1; }
+.client-card .name { font-weight: 600; font-size: 15px; }
+.client-card .meta { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+.client-card .badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent2);
+}
+
+/* =============================================
+   BEFORE/AFTER MODE
+   ============================================= */
+.app-layout.after-mode .drawflow-node.manual-node {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+  transition: all 0.5s ease;
+}
+
+.app-layout.after-mode .connection .main-path {
+  stroke: var(--green) !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.4));
+}
+
+.app-layout.after-mode .drawflow-node:not(.manual-node) {
+  border-color: var(--green);
+  transition: border-color 0.5s ease;
+}
+
+/* =============================================
+   NODE SELECTOR — Modal con iconos
+   ============================================= */
+.preset-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.preset-btn:hover {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.08);
+  transform: scale(1.02);
+}
+
+.preset-btn:active { transform: scale(0.97); }
+
+.preset-icon { font-size: 20px; }
+
+.preset-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.preset-custom {
+  border-style: dashed;
+  grid-column: 1 / -1;
+  justify-content: center;
+}
+
+/* =============================================
+   SCROLLBAR
+   ============================================= */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text2); }
