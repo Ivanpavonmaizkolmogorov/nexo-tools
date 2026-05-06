@@ -154,8 +154,25 @@ class NexoApp {
     this.nodoMap = new Map();
     if (this.auditoria.nodos.length > 0 && this.auditoria.canvasData) {
       this.rebuildNodoMap();
+      this._syncNodeLabels();
     }
     this.updateIndicators();
+  }
+
+  _syncNodeLabels() {
+    for (const [drawflowId, nodo] of this.nodoMap) {
+      const labelEl = document.querySelector(`[data-nodo-id="${nodo.id}"]`);
+      if (labelEl && nodo.nombre) labelEl.textContent = nodo.nombre;
+      const subEl = document.querySelector(`[data-nodo-sub="${nodo.id}"]`);
+      if (subEl && nodo.esManual && nodo.horas > 0) {
+        subEl.textContent = `${Math.round(nodo.horasMes)}h/mes \u00b7 ${Math.round(nodo.costeMes)}\u20ac`;
+      }
+      // Clase naranja para conCambio
+      const nodeEl = document.getElementById('node-' + drawflowId);
+      if (nodeEl && nodo.solucion === 'conCambio') {
+        nodeEl.classList.add('con-cambio');
+      }
+    }
   }
 
   rebuildNodoMap() {
@@ -763,6 +780,7 @@ class NexoApp {
     }
 
     this.updateIndicators();
+    this.autoSaveCanvas();
   }
 
   spinValue(inputId, delta) {
