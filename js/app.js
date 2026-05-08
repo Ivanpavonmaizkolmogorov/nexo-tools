@@ -49,8 +49,8 @@ class NexoApp {
   // =========================================
   // HOME
   // =========================================
-  renderHome() {
-    const clientes = Storage.getClientes();
+  async renderHome() {
+    const clientes = await Storage.getClientes();
     const list = document.getElementById('clientList');
 
     if (clientes.length === 0) {
@@ -92,27 +92,27 @@ class NexoApp {
     document.getElementById('newClientContact').value = '';
   }
 
-  createClient() {
+  async createClient() {
     const nombre = document.getElementById('newClientName').value.trim();
     if (!nombre) { alert('Pon un nombre'); return; }
     const contacto = document.getElementById('newClientContact').value.trim();
     this.cliente = new Cliente(nombre, contacto);
     this.auditoria = this.cliente.nuevaAuditoria();
-    Storage.guardarCliente(this.cliente);
+    await Storage.guardarCliente(this.cliente);
     this.hideNewClientForm();
     this.showCanvas();
   }
 
-  openClient(clienteId) {
-    this.cliente = Storage.getClienteById(clienteId);
+  async openClient(clienteId) {
+    this.cliente = await Storage.getClienteById(clienteId);
     if (!this.cliente) return;
     this.auditoria = this.cliente.ultimaAuditoria || this.cliente.nuevaAuditoria();
     this.showCanvas();
   }
 
-  deleteClient(id) {
+  async deleteClient(id) {
     if (!confirm('¿Borrar este cliente y todas sus auditorías?')) return;
-    Storage.eliminarCliente(id);
+    await Storage.eliminarCliente(id);
     this.renderHome();
   }
 
@@ -139,13 +139,134 @@ class NexoApp {
     this.editor.on('nodeRemoved', (id) => this.onNodeRemoved(id));
     this.editor.on('nodeMoved', () => this.autoSaveCanvas());
 
-    // Fix: tap directo en nodos (Drawflow falla en táctil)
-    container.addEventListener('click', (e) => {
+    // ── Modo de trabajo ──
+    this._mode = 'pan';
+    this._multiSelected = new Set();
+
+    // Crear elemento lasso
+    const lasso = document.createElement('div');
+    lasso.id = 'selectionLasso';
+    lasso.style.cssText = 'position:absolute;border:1.5px dashed #22d3ee;background:rgba(34,211,238,0.08);display:none;z-index:100;pointer-events:none;';
+    container.appendChild(lasso);
+
+    let selectAction = null; // null | 'lasso' | 'drag'
+
+    container.addEventListener('mousedown', (e) => {
+      if (this._mode !== 'select') return;
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+
       const nodeEl = e.target.closest('.drawflow-node');
-      if (!nodeEl) return;
-      const nodeId = parseInt(nodeEl.id.replace('node-', ''));
-      if (nodeId && this.nodoMap.has(nodeId)) {
-        this.onNodeSelected(nodeId);
+      const containerRect = container.getBoundingClientRect();
+      const zoom = this.editor.zoom || 1;
+
+      if (nodeEl) {
+        const nodeId = parseInt(nodeEl.id.replace('node-', ''));
+        if (!nodeId) return;
+
+        // Click en nodo no seleccionado → seleccionarlo
+        if (!this._multiSelected.has(nodeId)) {
+          this._multiSelected.add(nodeId);
+          nodeEl.classList.add('multi-selected');
+          this._updateSelectHint();
+        }
+
+        // Iniciar arrastre de grupo
+        const positions = {};
+        this._multiSelected.forEach(id => {
+          const el = document.getElementById('node-' + id);
+          if (el) positions[id] = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
+        });
+        selectAction = 'drag';
+        const startX = e.clientX, startY = e.clientY;
+
+        const onMove = (ev) => {
+          const dx = (ev.clientX - startX) / zoom;
+          const dy = (ev.clientY - startY) / zoom;
+          this._multiSelected.forEach(id => {
+            const orig = positions[id];
+            if (!orig) return;
+            const el = document.getElementById('node-' + id);
+            if (!el) return;
+            el.style.left = (orig.x + dx) + 'px';
+            el.style.top = (orig.y + dy) + 'px';
+            const dfNode = this.editor.drawflow.drawflow.Home.data[id];
+            if (dfNode) { dfNode.pos_x = orig.x + dx; dfNode.pos_y = orig.y + dy; }
+            this.editor.updateConnectionNodes('node-' + id);
+          });
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          selectAction = null;
+          this.autoSaveCanvas();
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+
+      } else {
+        // Click en vacío → lasso selection
+        this._clearMultiSelect();
+        selectAction = 'lasso';
+        const startX = e.clientX - containerRect.left;
+        const startY = e.clientY - containerRect.top;
+        lasso.style.left = startX + 'px';
+        lasso.style.top = startY + 'px';
+        lasso.style.width = '0';
+        lasso.style.height = '0';
+        lasso.style.display = 'block';
+
+        const onMove = (ev) => {
+          const curX = ev.clientX - containerRect.left;
+          const curY = ev.clientY - containerRect.top;
+          const x = Math.min(startX, curX);
+          const y = Math.min(startY, curY);
+          const w = Math.abs(curX - startX);
+          const h = Math.abs(curY - startY);
+          lasso.style.left = x + 'px';
+          lasso.style.top = y + 'px';
+          lasso.style.width = w + 'px';
+          lasso.style.height = h + 'px';
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          // Detectar nodos dentro del lasso
+          const lassoRect = lasso.getBoundingClientRect();
+          container.querySelectorAll('.drawflow-node').forEach(nodeEl => {
+            const nodeRect = nodeEl.getBoundingClientRect();
+            const cx = nodeRect.left + nodeRect.width / 2;
+            const cy = nodeRect.top + nodeRect.height / 2;
+            if (cx >= lassoRect.left && cx <= lassoRect.right && cy >= lassoRect.top && cy <= lassoRect.bottom) {
+              const nid = parseInt(nodeEl.id.replace('node-', ''));
+              if (nid) { this._multiSelected.add(nid); nodeEl.classList.add('multi-selected'); }
+            }
+          });
+          lasso.style.display = 'none';
+          selectAction = null;
+          this._updateSelectHint();
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      }
+    }, true); // capture phase
+
+    // Pan mode: click abre panel
+    container.addEventListener('click', (e) => {
+      if (this._mode !== 'pan') return;
+      const nodeEl = e.target.closest('.drawflow-node');
+      if (nodeEl) {
+        const nodeId = parseInt(nodeEl.id.replace('node-', ''));
+        if (nodeId && this.nodoMap.has(nodeId)) this.onNodeSelected(nodeId);
+      }
+    });
+
+    // Escape → deseleccionar y volver a pan
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this._clearMultiSelect();
+        this.setMode('pan');
       }
     });
 
@@ -157,6 +278,42 @@ class NexoApp {
       this._syncNodeLabels();
     }
     this.updateIndicators();
+  }
+
+  setMode(mode) {
+    this._mode = mode;
+    document.getElementById('toolPan').classList.toggle('active', mode === 'pan');
+    document.getElementById('toolSelect').classList.toggle('active', mode === 'select');
+
+    if (mode === 'pan') {
+      this.editor.editor_mode = 'edit';
+      this._clearMultiSelect();
+      document.getElementById('drawflow').style.cursor = '';
+    } else {
+      this.editor.editor_mode = 'fixed';
+      document.getElementById('drawflow').style.cursor = 'crosshair';
+    }
+  }
+
+  _clearMultiSelect() {
+    this._multiSelected.forEach(id => {
+      const el = document.getElementById('node-' + id);
+      if (el) el.classList.remove('multi-selected');
+    });
+    this._multiSelected.clear();
+    this._updateSelectHint();
+  }
+
+  _updateSelectHint() {
+    const hint = document.getElementById('multiSelectHint');
+    if (!hint) return;
+    if (this._multiSelected.size > 0) {
+      hint.textContent = `${this._multiSelected.size} nodos seleccionados`;
+      hint.style.opacity = '1';
+    } else {
+      hint.textContent = this._mode === 'select' ? '☝️ Modo selección · Click en nodos' : '';
+      hint.style.opacity = '0.5';
+    }
   }
 
   _syncNodeLabels() {
@@ -173,6 +330,80 @@ class NexoApp {
         nodeEl.classList.add('con-cambio');
       }
     }
+  }
+
+  togglePanelResumen() {
+    const modal = document.getElementById('modalResumen');
+    if (modal.style.display !== 'none') {
+      modal.style.display = 'none';
+      return;
+    }
+
+    const manuales = this.auditoria.nodos.filter(n => n.esManual && n.horas > 0);
+    if (manuales.length === 0) {
+      alert('No hay tareas manuales con horas configuradas.');
+      return;
+    }
+
+    let rows = '';
+    manuales.forEach((n, idx) => {
+      rows += `<tr>
+        <td class="task-name">${n.nombre}</td>
+        <td><input type="number" value="${n.horas}" min="0" step="0.5" data-nodo="${n.id}" data-field="horas"></td>
+        <td><input type="number" value="${n.costePorHora}" min="0" step="1" data-nodo="${n.id}" data-field="costePorHora"></td>
+        <td>
+          <select data-nodo="${n.id}" data-field="frecuencia" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 6px;font-size:12px;">
+            <option value="diaria" ${n.frecuencia === 'diaria' ? 'selected' : ''}>Diaria</option>
+            <option value="semanal" ${n.frecuencia === 'semanal' ? 'selected' : ''}>Semanal</option>
+            <option value="mensual" ${n.frecuencia === 'mensual' ? 'selected' : ''}>Mensual</option>
+          </select>
+        </td>
+        <td class="task-total" data-total="${n.id}">${Math.round(n.horasMes)}h · ${Math.round(n.costeMes)}€</td>
+      </tr>`;
+    });
+
+    const totalH = Math.round(this.auditoria.totalHorasMes);
+    const totalC = Math.round(this.auditoria.totalCosteMes);
+
+    document.getElementById('modalResumenBody').innerHTML = `
+      <table>
+        <thead><tr><th>Tarea</th><th>Horas</th><th>€/hora</th><th>Frecuencia</th><th style="text-align:right">Total/mes</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr>
+          <td colspan="4" style="font-weight:700;padding-top:12px;">TOTAL</td>
+          <td class="task-total" id="modalTotal" style="padding-top:12px;">${totalH}h · ${totalC}€</td>
+        </tr></tfoot>
+      </table>`;
+
+    // Bind cambios
+    document.getElementById('modalResumenBody').addEventListener('change', (e) => {
+      const el = e.target;
+      const nodoId = el.dataset.nodo;
+      const field = el.dataset.field;
+      if (!nodoId || !field) return;
+
+      const nodo = this.auditoria.getNodo(nodoId);
+      if (!nodo) return;
+
+      if (field === 'frecuencia') {
+        nodo.frecuencia = el.value;
+      } else {
+        nodo[field] = parseFloat(el.value) || 0;
+      }
+
+      // Actualizar total de esa fila
+      const totalEl = document.querySelector(`[data-total="${nodoId}"]`);
+      if (totalEl) totalEl.textContent = `${Math.round(nodo.horasMes)}h · ${Math.round(nodo.costeMes)}€`;
+
+      // Actualizar total general
+      const tH = Math.round(this.auditoria.totalHorasMes);
+      const tC = Math.round(this.auditoria.totalCosteMes);
+      document.getElementById('modalTotal').textContent = `${tH}h · ${tC}€`;
+
+      this.updateIndicators();
+    });
+
+    modal.style.display = 'flex';
   }
 
   rebuildNodoMap() {
@@ -1014,10 +1245,10 @@ class NexoApp {
   // =========================================
   // GUARDAR
   // =========================================
-  guardar() {
+  async guardar() {
     if (!this.editor || !this.auditoria) return;
     this.auditoria.canvasData = this.editor.export();
-    Storage.guardarCliente(this.cliente);
+    await Storage.guardarCliente(this.cliente);
   }
 
   autoSaveCanvas() {
@@ -1062,6 +1293,151 @@ class NexoApp {
       }
     }
     return chain;
+  }
+
+  copiarResumen(conPrecios = false) {
+    const exportData = this.editor.export();
+    const moduleData = exportData.drawflow?.Home?.data || {};
+
+    // Mapear drawflowId → nodo del modelo
+    const dfToNodo = {};
+    for (const [dfId, nodeData] of Object.entries(moduleData)) {
+      const nodoId = nodeData.data?.nodoId;
+      if (nodoId) {
+        const nodo = this.auditoria.getNodo(nodoId);
+        if (nodo) dfToNodo[dfId] = { nodo, nodeData };
+      }
+    }
+
+    // Trazar cadena hacia atrás para un nodo
+    const traceBack = (dfId) => {
+      const chain = [];
+      let currentId = dfId;
+      const visited = new Set();
+      while (currentId && !visited.has(currentId)) {
+        visited.add(currentId);
+        const entry = dfToNodo[currentId];
+        if (!entry) break;
+        chain.unshift(entry.nodo.nombre);
+        const inputs = moduleData[currentId]?.inputs || {};
+        let parentId = null;
+        for (const inp of Object.values(inputs)) {
+          if (inp.connections && inp.connections.length > 0) {
+            parentId = String(inp.connections[0].node);
+            break;
+          }
+        }
+        currentId = parentId;
+      }
+      return chain;
+    };
+
+    // Encontrar nodos manuales y construir líneas
+    const lines = [];
+    let i = 1;
+    for (const [dfId, entry] of Object.entries(dfToNodo)) {
+      if (entry.nodo.esManual && entry.nodo.horas > 0) {
+        const chain = traceBack(dfId);
+        // Buscar paso siguiente (output)
+        let nextName = '';
+        const outputs = moduleData[dfId]?.outputs || {};
+        for (const out of Object.values(outputs)) {
+          if (out.connections && out.connections.length > 0) {
+            const nextId = String(out.connections[0].node);
+            if (dfToNodo[nextId]) nextName = dfToNodo[nextId].nodo.nombre;
+            break;
+          }
+        }
+        const next = nextName ? ` (→ ${nextName})` : '';
+        if (conPrecios) {
+          const horasMes = Math.round(entry.nodo.horasMes);
+          const costeMes = Math.round(entry.nodo.costeMes);
+          lines.push(`${i}. ${chain.join(' → ')}${next} — ${horasMes}h/mes · ${costeMes}€`);
+        } else {
+          lines.push(`${i}. ${chain.join(' → ')}${next}`);
+        }
+        i++;
+      }
+    }
+
+    if (lines.length === 0) {
+      alert('No hay pasos manuales con horas configuradas.');
+      return;
+    }
+
+    const texto = `📋 Procesos manuales detectados — ${this.cliente.nombre}\n\n${lines.join('\n')}`;
+
+    navigator.clipboard.writeText(texto).then(() => {
+      const sel = conPrecios ? 'true' : 'false';
+      const btn = document.querySelector(`[onclick="app.copiarResumen(${sel})"]`);
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copiado!';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    });
+  }
+
+  copiarCanvas() {
+    const drawflowEl = document.getElementById('drawflow');
+    const canvasArea = document.querySelector('.canvas-area');
+    const exportData = this.editor.export();
+    const moduleData = exportData.drawflow?.Home?.data || {};
+    const nodeEntries = Object.values(moduleData);
+
+    if (nodeEntries.length === 0) { alert('No hay nodos en el canvas.'); return; }
+
+    const nodeW = 160, nodeH = 110;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    nodeEntries.forEach(nd => {
+      if (nd.pos_x < minX) minX = nd.pos_x;
+      if (nd.pos_y < minY) minY = nd.pos_y;
+      if (nd.pos_x + nodeW > maxX) maxX = nd.pos_x + nodeW;
+      if (nd.pos_y + nodeH > maxY) maxY = nd.pos_y + nodeH;
+    });
+
+    const pad = 40;
+    const totalW = (maxX - minX) + pad * 2;
+    const totalH = (maxY - minY) + pad * 2;
+
+    const innerEl = drawflowEl.querySelector('.drawflow');
+    const origTransform = innerEl.style.transform;
+    const origW = drawflowEl.style.width;
+    const origH = drawflowEl.style.height;
+    const origOverflow = drawflowEl.style.overflow;
+
+    innerEl.style.transform = `translate(${-minX + pad}px, ${-minY + pad}px) scale(1)`;
+    drawflowEl.style.width = totalW + 'px';
+    drawflowEl.style.height = totalH + 'px';
+    drawflowEl.style.overflow = 'hidden';
+    canvasArea.classList.add('capture-mode');
+
+    setTimeout(() => {
+      html2canvas(drawflowEl, {
+        backgroundColor: '#0f0f23',
+        scale: 2,
+        width: totalW,
+        height: totalH,
+        useCORS: true,
+        logging: false
+      }).then(capturedCanvas => {
+        innerEl.style.transform = origTransform;
+        drawflowEl.style.width = origW;
+        drawflowEl.style.height = origH;
+        drawflowEl.style.overflow = origOverflow;
+        canvasArea.classList.remove('capture-mode');
+
+        capturedCanvas.toBlob(blob => {
+          navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]).then(() => {
+            // Feedback visual breve
+            const btn = document.querySelector('[onclick="app.copiarCanvas()"]');
+            const orig = btn.textContent;
+            btn.textContent = '✅ Copiado!';
+            setTimeout(() => { btn.textContent = orig; }, 1500);
+          }).catch(() => alert('No se pudo copiar al portapapeles.'));
+        }, 'image/png');
+      });
+    }, 100);
   }
 
   generarPDF() {
@@ -1190,23 +1566,94 @@ class NexoApp {
       '<p style="text-align:center; font-size:11px; color:#666; font-style:italic; line-height:1.5; margin-top:12px;">' +
       'Cada mes que pasa, son ' + costeMes + '&#8364; y ' + horas + 'h que podr&#237;ais<br>estar invirtiendo en hacer crecer vuestro negocio.</p>';
 
-    document.getElementById('pdfBody').innerHTML = html;
-    document.getElementById('pdfDate').textContent = new Date().toLocaleDateString('es-ES');
+    // Capturar canvas como imagen (smart crop)
+    const drawflowEl = document.getElementById('drawflow');
+    const canvasArea = document.querySelector('.canvas-area');
+    const exportData = this.editor.export();
+    const moduleData = exportData.drawflow?.Home?.data || {};
+    const nodeEntries = Object.values(moduleData);
 
-    const el = document.getElementById('pdfContent');
-    el.style.display = 'block';
+    if (nodeEntries.length === 0) {
+      document.getElementById('pdfBody').innerHTML = html;
+      document.getElementById('pdfDate').textContent = new Date().toLocaleDateString('es-ES');
+      const el = document.getElementById('pdfContent');
+      el.style.display = 'block';
+      const filename = 'nexo_' + this.cliente.nombre.toLowerCase().replace(/\s+/g, '_') + '.pdf';
+      html2pdf().set({ margin: 6, filename, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => { el.style.display = 'none'; });
+      return;
+    }
 
-    const filename = 'nexo_' + this.cliente.nombre.toLowerCase().replace(/\s+/g, '_') + '.pdf';
-
-    html2pdf().set({
-      margin: 6,
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(el).save().then(() => {
-      el.style.display = 'none';
+    // Bounding box desde datos del modelo (posiciones absolutas)
+    const nodeW = 160, nodeH = 110;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    nodeEntries.forEach(nd => {
+      if (nd.pos_x < minX) minX = nd.pos_x;
+      if (nd.pos_y < minY) minY = nd.pos_y;
+      if (nd.pos_x + nodeW > maxX) maxX = nd.pos_x + nodeW;
+      if (nd.pos_y + nodeH > maxY) maxY = nd.pos_y + nodeH;
     });
+
+    const pad = 40;
+    const totalW = (maxX - minX) + pad * 2;
+    const totalH = (maxY - minY) + pad * 2;
+
+    // Guardar estado original
+    const innerEl = drawflowEl.querySelector('.drawflow');
+    const origTransform = innerEl.style.transform;
+    const origW = drawflowEl.style.width;
+    const origH = drawflowEl.style.height;
+    const origOverflow = drawflowEl.style.overflow;
+
+    // Configurar para captura completa
+    innerEl.style.transform = `translate(${-minX + pad}px, ${-minY + pad}px) scale(1)`;
+    drawflowEl.style.width = totalW + 'px';
+    drawflowEl.style.height = totalH + 'px';
+    drawflowEl.style.overflow = 'hidden';
+
+    canvasArea.classList.add('capture-mode');
+
+    setTimeout(() => {
+      html2canvas(drawflowEl, {
+        backgroundColor: '#0f0f23',
+        scale: 2,
+        width: totalW,
+        height: totalH,
+        useCORS: true,
+        logging: false
+      }).then(capturedCanvas => {
+        // Restaurar estado
+        innerEl.style.transform = origTransform;
+        drawflowEl.style.width = origW;
+        drawflowEl.style.height = origH;
+        drawflowEl.style.overflow = origOverflow;
+        canvasArea.classList.remove('capture-mode');
+
+        const canvasImg = capturedCanvas.toDataURL('image/png');
+        const mapSection = '<div class="pdf-page-break" style="padding-top:10px;">' +
+          '<div style="font-size:15px; font-weight:700; color:#6366f1; margin-bottom:12px; text-align:center;">&#128506; Mapa de procesos</div>' +
+          '<img src="' + canvasImg + '" style="width:100%; max-height:240mm; object-fit:contain; border-radius:8px; border:1px solid #e5e7eb;">' +
+          '</div>';
+
+      document.getElementById('pdfBody').innerHTML = html + mapSection;
+      document.getElementById('pdfDate').textContent = new Date().toLocaleDateString('es-ES');
+
+      const el = document.getElementById('pdfContent');
+      el.style.display = 'block';
+
+      const filename = 'nexo_' + this.cliente.nombre.toLowerCase().replace(/\s+/g, '_') + '.pdf';
+
+      html2pdf().set({
+        margin: 6,
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { before: '.pdf-page-break', mode: ['css', 'legacy'] }
+      }).from(el).save().then(() => {
+          el.style.display = 'none';
+        });
+      });
+    }, 100);
   }
 }
 
