@@ -6,10 +6,11 @@ import { Auditoria } from './Auditoria.js';
  * Puede tener múltiples auditorías (visitas, revisiones, ampliaciones).
  */
 export class Cliente {
-  constructor(nombre, contacto = '') {
+  constructor(nombre, contacto = '', email = '') {
     this.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
     this.nombre = nombre;
     this.contacto = contacto;
+    this.email = email;
     this.fechaCreacion = new Date().toISOString();
     this.auditorias = [];
   }
@@ -37,13 +38,14 @@ export class Cliente {
       id: this.id,
       nombre: this.nombre,
       contacto: this.contacto,
+      email: this.email,
       fechaCreacion: this.fechaCreacion,
       auditorias: this.auditorias.map(a => a.toJSON())
     };
   }
 
   static fromJSON(data) {
-    const c = new Cliente(data.nombre, data.contacto);
+    const c = new Cliente(data.nombre, data.contacto, data.email || '');
     c.id = data.id;
     c.fechaCreacion = data.fechaCreacion;
     c.auditorias = data.auditorias.map(a => Auditoria.fromJSON(a));

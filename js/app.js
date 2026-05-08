@@ -97,13 +97,15 @@ class NexoApp {
     document.getElementById('newClientForm').style.display = 'none';
     document.getElementById('newClientName').value = '';
     document.getElementById('newClientContact').value = '';
+    document.getElementById('newClientEmail').value = '';
   }
 
   async createClient() {
     const nombre = document.getElementById('newClientName').value.trim();
     if (!nombre) { alert('Pon un nombre'); return; }
     const contacto = document.getElementById('newClientContact').value.trim();
-    this.cliente = new Cliente(nombre, contacto);
+    const email = document.getElementById('newClientEmail').value.trim();
+    this.cliente = new Cliente(nombre, contacto, email);
     this.auditoria = this.cliente.nuevaAuditoria();
     await Storage.guardarCliente(this.cliente);
     this.hideNewClientForm();
