@@ -21,7 +21,14 @@ class NexoApp {
   }
 
   init() {
-    this.renderHome();
+    // Deep link: #client=ID abre directamente un cliente
+    const hash = window.location.hash;
+    const match = hash.match(/client=([^&]+)/);
+    if (match) {
+      this.openClient(match[1]);
+    } else {
+      this.renderHome();
+    }
     this.setupDragAndDrop();
   }
 
