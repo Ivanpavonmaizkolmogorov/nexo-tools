@@ -75,17 +75,55 @@ class NexoApp {
       const fecha = lastAudit ? new Date(lastAudit.fecha).toLocaleDateString('es-ES') : '';
       const nAudit = c.totalAuditorias;
       const initial = c.nombre.charAt(0).toUpperCase();
+      const meta = [c.contacto || 'Sin contacto', c.email || '', fecha].filter(Boolean).join(' · ');
       return `
         <div class="client-card" onclick="app.openClient('${c.id}')">
           <div class="avatar">${initial}</div>
           <div class="info">
             <div class="name">${c.nombre}</div>
-            <div class="meta">${c.contacto || 'Sin contacto'} · ${fecha}</div>
+            <div class="meta">${meta}</div>
           </div>
           <div class="badge">${nAudit} audit${nAudit !== 1 ? 's' : ''}</div>
+          <button class="btn" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); app.editClient('${c.id}')">✏️</button>
           <button class="btn danger" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); app.deleteClient('${c.id}')">🗑️</button>
         </div>`;
     }).join('');
+  }
+
+  async editClient(id) {
+    const cliente = await Storage.getClienteById(id);
+    if (!cliente) return;
+    const list = document.getElementById('clientList');
+    list.innerHTML = `
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; max-width:500px; margin:0 auto;">
+        <h3 style="margin:0 0 16px; color:var(--text1);">✏️ Editar ${cliente.nombre}</h3>
+        <div class="field">
+          <label>Nombre del negocio</label>
+          <input type="text" id="editName" value="${cliente.nombre}">
+        </div>
+        <div class="field">
+          <label>Contacto</label>
+          <input type="text" id="editContact" value="${cliente.contacto || ''}">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="editEmail" value="${cliente.email || ''}" placeholder="cliente@empresa.com">
+        </div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button class="btn primary" onclick="app.saveClientEdit('${id}')">Guardar</button>
+          <button class="btn" onclick="app.renderHome()">Cancelar</button>
+        </div>
+      </div>`;
+  }
+
+  async saveClientEdit(id) {
+    const cliente = await Storage.getClienteById(id);
+    if (!cliente) return;
+    cliente.nombre = document.getElementById('editName').value.trim() || cliente.nombre;
+    cliente.contacto = document.getElementById('editContact').value.trim();
+    cliente.email = document.getElementById('editEmail').value.trim();
+    await Storage.guardarCliente(cliente);
+    this.renderHome();
   }
 
   showNewClientForm() {
