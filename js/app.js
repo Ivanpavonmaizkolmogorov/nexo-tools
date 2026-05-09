@@ -1438,7 +1438,7 @@ class NexoApp {
 
     const texto = `📋 Procesos manuales detectados — ${this.cliente.nombre}\n\n${lines.join('\n')}`;
 
-    navigator.clipboard.writeText(texto).then(() => {
+    this._copyText(texto).then(() => {
       const sel = conPrecios ? 'true' : 'false';
       const btn = document.querySelector(`[onclick="app.copiarResumen(${sel})"]`);
       const orig = btn.textContent;
@@ -1497,10 +1497,7 @@ class NexoApp {
         canvasArea.classList.remove('capture-mode');
 
         capturedCanvas.toBlob(blob => {
-          navigator.clipboard.write([
-            new ClipboardItem({ 'image/png': blob })
-          ]).then(() => {
-            // Feedback visual breve
+          this._copyBlob(blob).then(() => {
             const btn = document.querySelector('[onclick="app.copiarCanvas()"]');
             const orig = btn.textContent;
             btn.textContent = '✅ Copiado!';
@@ -1509,6 +1506,41 @@ class NexoApp {
         }, 'image/png');
       });
     }, 100);
+  }
+
+  /** Copiar texto al portapapeles (con fallback para HTTP) */
+  _copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    // Fallback: textarea + execCommand
+    return new Promise((resolve) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;left:-9999px;';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      resolve();
+    });
+  }
+
+  /** Copiar imagen al portapapeles (con fallback: descarga) */
+  _copyBlob(blob) {
+    if (navigator.clipboard && navigator.clipboard.write && typeof ClipboardItem !== 'undefined') {
+      return navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    }
+    // Fallback: descargar como archivo
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nexo_${this.cliente.nombre.replace(/\s/g,'_')}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      resolve();
+    });
   }
 
   generarPDF() {
