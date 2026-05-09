@@ -1206,8 +1206,32 @@ class NexoApp {
 
   toggleCoste() {
     this.costeRevealed = !this.costeRevealed;
-    document.querySelector('.coste-toggle').classList.toggle('revealed', this.costeRevealed);
+    document.querySelectorAll('.coste-toggle').forEach(el => el.classList.toggle('revealed', this.costeRevealed));
     this.updateIndicators();
+  }
+
+  togglePresentacion() {
+    const canvas = document.getElementById('canvasView');
+    const exitBtn = document.getElementById('btnExitPresentation');
+    const isPresenting = canvas.classList.toggle('presentation-mode');
+    exitBtn.style.display = isPresenting ? 'block' : 'none';
+    if (isPresenting) {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+      this._presEscHandler = (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); this.togglePresentacion(); }
+      };
+      document.addEventListener('keydown', this._presEscHandler);
+    } else {
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      if (this._presEscHandler) {
+        document.removeEventListener('keydown', this._presEscHandler);
+        this._presEscHandler = null;
+      }
+    }
   }
 
   toggleBeforeAfter() {

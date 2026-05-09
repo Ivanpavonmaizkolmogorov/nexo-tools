@@ -861,3 +861,46 @@ body {
 .capture-mode .canvas-toolbar {
   display: none;
 }
+
+/* =============================================
+   MODO PRESENTACIÓN — Pantalla limpia para demos
+   ============================================= */
+.presentation-mode .topbar { display: none; }
+.presentation-mode .left-panel { display: none; }
+.presentation-mode .bottombar { display: none; }
+.presentation-mode .canvas-toolbar { display: none; }
+.presentation-mode .node-delete { display: none !important; }
+.presentation-mode .drawflow .drawflow-node .inputs,
+.presentation-mode .drawflow .drawflow-node .outputs { opacity: 0.3; }
+.presentation-mode #drawflow {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+}
+.presentation-mode.app-layout {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* Botón flotante para salir de presentación */
+.presentation-exit {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  background: rgba(15, 15, 35, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  color: var(--text2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+}
+.presentation-exit:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.presentation-mode ~ .presentation-exit,
+.presentation-mode .presentation-exit { display: block; }

@@ -71,6 +71,7 @@
     </div>
     <div class="actions">
       <button class="btn" id="btnBeforeAfter" onclick="app.toggleBeforeAfter()">👁️ Antes/Después</button>
+      <button class="btn" id="btnPresentar" onclick="app.togglePresentacion()">📺 Presentar</button>
       <button class="btn" onclick="app.copiarCanvas()">📷 Copiar mapa</button>
       <button class="btn" onclick="app.copiarResumen(false)">📋 Resumen</button>
       <button class="btn" onclick="app.copiarResumen(true)">📋 Resumen €</button>
@@ -263,8 +264,8 @@
     <div class="indicator">
       📊 Nodos: <span class="value" id="indNodos">0</span>
     </div>
-    <div class="indicator">
-      ⏱️ Horas/mes: <span class="value" id="indHoras">0</span>
+    <div class="indicator coste-toggle" onclick="app.toggleCoste()" title="Click para revelar">
+      ⏱️ Horas/mes: <span class="value hidden-value" id="indHoras">0</span>
     </div>
     <div class="indicator coste-toggle" onclick="app.toggleCoste()" title="Click para revelar">
       💰 Coste fuga: <span class="value hidden-value" id="indCoste">0€</span>
@@ -277,6 +278,8 @@
     </div>
   </div>
 </div>
+
+<button class="presentation-exit" id="btnExitPresentation" onclick="app.togglePresentacion()">✕ Salir</button>
 
 <!-- MODAL RESUMEN TAREAS -->
 <div class="modal-overlay" id="modalResumen" style="display:none;">
