@@ -1,0 +1,18 @@
+{
+  "name": "Nexo — Auditoría de Procesos",
+  "short_name": "Nexo",
+  "description": "Herramienta visual de auditoría de procesos para PYMEs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#7c5cfc",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
